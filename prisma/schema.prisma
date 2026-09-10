@@ -1,0 +1,286 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Business & Admins
+// ---------------------------------------------------------------------------
+
+model Business {
+  id                 String    @id @default("business")
+  name               String
+  logoUrl            String?
+  phone              String
+  whatsapp           String
+  email              String
+  address            String
+  city               String
+  state              String    @default("Tamil Nadu")
+  setupCompletedAt   DateTime?
+  documentReminderDays Int     @default(30)
+  rentalTerms        String?
+  notifyBookings     Boolean   @default(true)
+  notifyPayments     Boolean   @default(true)
+  notifyDocuments    Boolean   @default(true)
+  notifyService      Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  name         String
+  mobile       String
+  email        String    @unique
+  passwordHash String
+  photoUrl     String?
+  isDisabled   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  payments             Payment[]
+  partnerTransactions  PartnerTransaction[]
+}
+
+model Counter {
+  id     String @id
+  value  Int    @default(0)
+}
+
+// ---------------------------------------------------------------------------
+// Fleet
+// ---------------------------------------------------------------------------
+
+model Vehicle {
+  id                 String    @id @default(cuid())
+  registrationNumber String    @unique
+  make               String
+  model              String
+  variant            String?
+  year               Int
+  colour             String
+  fuelType           String
+  purchaseDate       DateTime
+  purchasePrice      Float
+  currentKm          Int
+  imageUrl           String?
+  status             String    @default("AVAILABLE") // AVAILABLE | BOOKED | ACTIVE | SERVICE
+  archived           Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  pricing     VehiclePricing?
+  documents   VehicleDocument[]
+  bookings    Booking[]
+  expenses    Expense[]
+  services    ServiceRecord[]
+  incidents   DamageIncident[]
+}
+
+model VehiclePricing {
+  id             String  @id @default(cuid())
+  vehicleId      String  @unique
+  vehicle        Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  dailyRate      Float
+  extraHourRate  Float
+  extraKmRate    Float
+  updatedAt      DateTime @updatedAt
+}
+
+model VehicleDocument {
+  id                 String    @id @default(cuid())
+  vehicleId          String
+  vehicle            Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  type               String    // RC | INSURANCE | FC | OTHER
+  documentName       String?   // used for OTHER type
+  documentNumber     String?   // RC number / policy number / FC number
+  issuer             String?   // insurance company
+  startDate          DateTime? // registration date / policy start / FC start
+  expiryDate         DateTime? // insurance/FC/other expiry (RC has none)
+  premium            Float?
+  fileUrl            String?
+  fileName           String?
+  fileType           String?   // image | pdf
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Customers
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id                     String    @id @default(cuid())
+  fullName               String
+  mobile                 String    @unique
+  drivingLicenceNumber   String
+  licenceExpiry          DateTime
+  idProofType            String
+  idProofNumber          String
+  address                String
+  emergencyContact       String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  bookings   Booking[]
+  incidents  DamageIncident[]
+}
+
+// ---------------------------------------------------------------------------
+// Bookings
+// ---------------------------------------------------------------------------
+
+model Booking {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  customerId       String
+  customer         Customer  @relation(fields: [customerId], references: [id])
+  vehicleId        String
+  vehicle          Vehicle   @relation(fields: [vehicleId], references: [id])
+
+  pickupAt         DateTime
+  returnAt         DateTime
+  pickupLocation   String
+  returnLocation   String
+  currentKm        Int?      // vehicle's odometer reading captured at booking creation
+
+  dailyRate        Float
+  rentalDays       Int
+  extraHourRate    Float
+  extraHours       Float     @default(0) // authoritative once returned; pre-return estimate before that
+  extraKmRate      Float
+  extraKm          Float     @default(0) // authoritative once returned, from actual handover/return KM
+  discount         Float     @default(0)
+  totalAmount      Float
+
+  status           String    @default("BOOKED") // BOOKED | ACTIVE | RETURNED
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  payments    Payment[]
+  handover    Handover?
+  vehicleReturn VehicleReturn?
+  incidents   DamageIncident[]
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  bookingId   String
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  date        DateTime  @default(now())
+  amount      Float
+  method      String    // CASH | UPI | BANK_TRANSFER | CARD | OTHER
+  addedById   String?
+  addedBy     Admin?    @relation(fields: [addedById], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Handover {
+  id                    String    @id @default(cuid())
+  bookingId             String    @unique
+  booking               Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  startingKm            Int
+  fuelLevel             String    // e.g. FULL, 3/4, 1/2, 1/4, EMPTY
+  exteriorCondition     String
+  interiorCondition     String
+  existingDamageNotes   String?
+  photos                String    @default("[]") // JSON array of urls
+  customerSignatureUrl  String?
+  handoverAt            DateTime
+  createdAt             DateTime  @default(now())
+}
+
+model VehicleReturn {
+  id                    String    @id @default(cuid())
+  bookingId             String    @unique
+  booking               Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  endingKm              Int
+  fuelLevel             String
+  newDamageNotes        String?
+  photos                String    @default("[]")
+  extraKm               Float     @default(0)
+  extraHours            Float     @default(0)
+  damageCharge          Float     @default(0)
+  otherPenalty          Float     @default(0)
+  customerSignatureUrl  String?
+  returnAt              DateTime
+  createdAt             DateTime  @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Finance
+// ---------------------------------------------------------------------------
+
+model Expense {
+  id             String    @id @default(cuid())
+  type           String    // CAR | BUSINESS
+  category       String    // FUEL | FASTAG | TOLL | PARKING | CLEANING | SERVICE_MAINTENANCE | OTHER_CAR | INSURANCE | FC | OTHER_BUSINESS
+  vehicleId      String?
+  vehicle        Vehicle?  @relation(fields: [vehicleId], references: [id])
+  date           DateTime
+  amount         Float
+  vendor         String?
+  paymentMethod  String    // CASH | UPI | BANK_TRANSFER | CARD | OTHER
+  billUrl        String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  service        ServiceRecord?
+}
+
+model ServiceRecord {
+  id             String    @id @default(cuid())
+  expenseId      String    @unique
+  expense        Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  vehicleId      String
+  vehicle        Vehicle   @relation(fields: [vehicleId], references: [id])
+  date           DateTime
+  serviceCentre  String
+  billNumber     String?
+  kmAtService    Int
+  amount         Float
+  billUrl        String?
+  notes          String?
+  nextServiceDate DateTime?
+  nextServiceKm   Int?
+  createdAt      DateTime  @default(now())
+}
+
+model DamageIncident {
+  id                  String    @id @default(cuid())
+  code                String    @unique
+  vehicleId           String
+  vehicle             Vehicle   @relation(fields: [vehicleId], references: [id])
+  bookingId           String?
+  booking             Booking?  @relation(fields: [bookingId], references: [id])
+  customerId          String?
+  customer            Customer? @relation(fields: [customerId], references: [id])
+  date                DateTime
+  description         String
+  photos              String    @default("[]")
+  estimatedRepairCost Float?
+  actualRepairCost    Float?
+  customerCharge      Float?
+  status              String    @default("REPORTED") // REPORTED | UNDER_REPAIR | COMPLETED
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model PartnerTransaction {
+  id          String    @id @default(cuid())
+  partnerId   String
+  partner     Admin     @relation(fields: [partnerId], references: [id])
+  type        String    // INITIAL_INVESTMENT | ADDITIONAL_INVESTMENT | BUSINESS_EXPENSE_PAID_PERSONALLY | WITHDRAWAL
+  amount      Float
+  date        DateTime
+  notes       String?
+  createdAt   DateTime  @default(now())
+}

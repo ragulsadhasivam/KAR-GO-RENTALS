@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Base surfaces — deep charcoal, layered */
+  --color-base: #08080a;
+  --color-base-2: #0d0d10;
+  --color-surface: #131318;
+  --color-surface-2: #191920;
+  --color-surface-3: #202029;
+  --color-elevated: #24242e;
+
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  --color-ink-1: #f5f5f7;
+  --color-ink-2: #c9c9d1;
+  --color-ink-3: #8f8f9c;
+  --color-ink-4: #64646f;
+
+  /* Gold / champagne accent */
+  --color-gold-200: #f2e0ac;
+  --color-gold-300: #e8cd85;
+  --color-gold-400: #dab868;
+  --color-gold-500: #c9a24c;
+  --color-gold-600: #a8823a;
+  --color-gold-700: #86662d;
+
+  /* Refined blue accent */
+  --color-blue-300: #8fb3ff;
+  --color-blue-400: #6b98fa;
+  --color-blue-500: #4c7cf0;
+  --color-blue-600: #3a63c9;
+  --color-blue-700: #2c4a97;
+
+  /* Violet / purple accent — echoes the logo's purple, used mainly in ambient background lighting */
+  --color-purple-300: #c4b5fd;
+  --color-purple-400: #a78bfa;
+  --color-purple-500: #8b5cf6;
+  --color-purple-600: #7c3aed;
+
+  /* Functional */
+  --color-success-300: #86e3b8;
+  --color-success-500: #34c281;
+  --color-success-600: #279c67;
+
+  --color-warning-300: #f5d792;
+  --color-warning-500: #d9a13b;
+  --color-warning-600: #b6822a;
+
+  --color-danger-300: #f5a3a0;
+  --color-danger-500: #e5544d;
+  --color-danger-600: #c23e39;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.35), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  --shadow-glow-gold: 0 0 0 1px rgba(201, 162, 76, 0.15), 0 8px 32px -8px rgba(201, 162, 76, 0.25);
+  --shadow-glow-blue: 0 0 0 1px rgba(76, 124, 240, 0.15), 0 8px 32px -8px rgba(76, 124, 240, 0.25);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-base);
+  color: var(--color-ink-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(201, 162, 76, 0.3);
+  color: #fff;
+}
+
+/* Scrollbars — thin, dark, unobtrusive */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(19, 19, 24, 0.62);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--color-border);
+  }
+
+  .glass-strong {
+    background: rgba(24, 24, 30, 0.78);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--color-border);
+  }
+
+  .text-page-title {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-1);
+  }
+
+  .text-section-title {
+    font-size: 1.25rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-ink-1);
+  }
+
+  .text-card-title {
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 600;
+    color: var(--color-ink-1);
+  }
+
+  .text-body {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-ink-2);
+  }
+
+  .text-secondary {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--color-ink-3);
+  }
+
+  .text-meta {
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  .text-figure {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+  }
+
+  .gold-gradient-text {
+    background: linear-gradient(135deg, var(--color-gold-300), var(--color-gold-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes boot-in {
+  from { opacity: 0; transform: scale(0.94); filter: blur(4px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+.animate-boot-in {
+  animation: boot-in 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---------------------------------------------------------------------
+   Ambient background system — every decorative layer behind the app UI.
+   All motion is transform/opacity only (compositor-thread, no JS loop),
+   parameterised via CSS custom properties (--dx/--dy/--dur/--delay/...)
+   so one keyframe set serves every instance instead of dozens of near-
+   duplicate rules. `.bg-anim` is the single switch `prefers-reduced-motion`
+   turns off — every animated decorative element carries that class.
+------------------------------------------------------------------------ */
+
+/* Large glow orbs — slow drift + gentle scale breathing. */
+@keyframes bg-orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(var(--dx, 4%), var(--dy, 4%)) scale(var(--s, 1.06)); }
+}
+.animate-orb {
+  animation: bg-orb-drift var(--dur, 40s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* Tiny floating particles — soft vertical/horizontal drift with a fade+scale pulse. */
+@keyframes bg-dot-float {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: var(--op, 0.5); }
+  50% { transform: translate(var(--dx, 6px), var(--dy, -10px)) scale(var(--s, 1.1)); opacity: calc(var(--op, 0.5) * 0.45); }
+}
+.animate-dot {
+  animation: bg-dot-float var(--dur, 20s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* Thin geometric outlines — slow rotation, either direction. */
+@keyframes bg-spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes bg-spin-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.animate-spin-cw { animation: bg-spin-cw var(--dur, 30s) linear infinite; }
+.animate-spin-ccw { animation: bg-spin-ccw var(--dur, 34s) linear infinite; }
+
+/* Large abstract outline shapes — barely-there parallax nudge. */
+@keyframes bg-outline-shift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(var(--dx, 1.5%), var(--dy, -1.5%)); }
+}
+.animate-outline {
+  animation: bg-outline-shift var(--dur, 50s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* Soft light trails — a slow diagonal sweep that fades in and out. */
+@keyframes bg-trail-sweep {
+  0% { transform: translate(-15%, -15%); opacity: 0; }
+  15% { opacity: var(--op, 0.5); }
+  85% { opacity: var(--op, 0.5); }
+  100% { transform: translate(115%, 115%); opacity: 0; }
+}
+.animate-trail {
+  animation: bg-trail-sweep var(--dur, 32s) ease-in-out var(--delay, 0s) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-anim {
+    animation: none !important;
+  }
+}
