@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { vehicleName, formatCurrency, formatDate } from "@/lib/utils";
 
 interface PendingRow {
-  booking: { id: string; code: string; totalAmount: number; returnAt: Date | string; vehicle: any; customer: any };
+  booking: { id: string; code: string; totalAmount: number; vehicleReturn: { returnAt: Date | string } | null; vehicle: any; customer: any };
   paid: number;
   balance: number;
 }
@@ -43,7 +43,7 @@ export function PaymentPendingCard({ items }: { items: PendingRow[] }) {
                   <span className="text-secondary truncate">{booking.customer.fullName}</span>
                 </div>
                 <p className="text-[11.5px] text-ink-4 mt-0.5">
-                  {vehicleName(booking.vehicle)} · Return {formatDate(booking.returnAt)}
+                  {vehicleName(booking.vehicle)} · Return {booking.vehicleReturn ? formatDate(booking.vehicleReturn.returnAt) : "—"}
                 </p>
               </div>
               <div className="text-right shrink-0">

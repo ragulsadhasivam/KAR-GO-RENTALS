@@ -91,29 +91,24 @@ export const customerSchema = z.object({
 });
 export type CustomerInput = z.infer<typeof customerSchema>;
 
+// Booking creation only captures what's actually known at booking time —
+// pickup date/time/location and the configured pricing. Return date/time is
+// unknowable up front (see rentalBilling.ts) and is captured later on the
+// actual return.
 export const bookingSchema = z
   .object({
     customerId: z.string().optional(),
     newCustomer: customerSchema.optional(),
     vehicleId: requiredStr("Vehicle"),
     pickupAt: z.coerce.date(),
-    returnAt: z.coerce.date(),
     pickupLocation: requiredStr("Pickup location"),
-    returnLocation: requiredStr("Return location"),
     currentKm: z.coerce.number().int().min(0, "Enter a valid KM reading").optional(),
     dailyRate: z.coerce.number().min(0),
-    rentalDays: z.coerce.number().int().min(1),
     extraHourRate: z.coerce.number().min(0),
-    extraHours: z.coerce.number().min(0).default(0),
     extraKmRate: z.coerce.number().min(0),
     discount: z.coerce.number().min(0).default(0),
-    totalAmount: z.coerce.number().min(0),
     amountPaid: z.coerce.number().min(0).default(0),
     paymentMethod: z.enum(["CASH", "UPI", "BANK_TRANSFER", "CARD", "OTHER"]).optional(),
-  })
-  .refine((d) => d.returnAt > d.pickupAt, {
-    message: "Return date/time must be after pickup date/time",
-    path: ["returnAt"],
   })
   .refine((d) => !!d.customerId || !!d.newCustomer, {
     message: "Select an existing customer or add a new one",
@@ -145,12 +140,15 @@ export const vehicleReturnSchema = z.object({
   fuelLevel: z.enum(["EMPTY", "1/4", "1/2", "3/4", "FULL"]),
   newDamageNotes: z.string().optional().nullable(),
   photos: z.array(z.string()).default([]),
+  // Extra KM is admin-entered (existing KM-based pricing); extra HOURS is
+  // never entered here — it's derived from pickupAt vs returnAt by the
+  // server using rentalBilling.ts, so it isn't part of this schema.
   extraKm: z.coerce.number().min(0).default(0),
-  extraHours: z.coerce.number().min(0).default(0),
   damageCharge: z.coerce.number().min(0).default(0),
   otherPenalty: z.coerce.number().min(0).default(0),
   customerSignatureUrl: z.string().optional().nullable(),
-  returnAt: z.coerce.date().optional(),
+  returnAt: z.coerce.date(),
+  returnLocation: requiredStr("Return location"),
 });
 
 export const expenseSchema = z

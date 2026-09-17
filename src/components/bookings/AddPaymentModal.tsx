@@ -18,10 +18,12 @@ export function AddPaymentModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   bookingId: string;
-  balance: number;
+  /** null when the booking hasn't been returned yet — the final total (and
+   * therefore a balance) isn't known until then, so no cap is applied. */
+  balance: number | null;
 }) {
   const router = useRouter();
-  const [amount, setAmount] = useState<number>(balance);
+  const [amount, setAmount] = useState<number>(balance ?? 0);
   const [method, setMethod] = useState("CASH");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export function AddPaymentModal({
       setError("Enter a valid amount");
       return;
     }
-    if (amount > balance + 0.5) {
+    if (balance != null && amount > balance + 0.5) {
       setError(`Amount exceeds the remaining balance of ${formatCurrency(balance)}`);
       return;
     }
@@ -77,7 +79,9 @@ export function AddPaymentModal({
       }
     >
       <div className="space-y-4">
-        <p className="text-secondary">Remaining balance: {formatCurrency(balance)}</p>
+        <p className="text-secondary">
+          {balance != null ? `Remaining balance: ${formatCurrency(balance)}` : "This booking has not been returned yet — enter any advance/interim amount."}
+        </p>
         <Input label="Amount" type="number" required value={amount} error={error} onChange={(e) => setAmount(Number(e.target.value))} />
         <Select label="Payment Method" value={method} onChange={(e) => setMethod(e.target.value)}>
           {PAYMENT_METHODS.map((m) => (

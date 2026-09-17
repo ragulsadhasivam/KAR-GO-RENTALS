@@ -63,3 +63,20 @@ export function initials(name: string) {
 export function vehicleName(v: { make: string; model: string }) {
   return `${v.make} ${v.model}`;
 }
+
+/**
+ * A booking's totalAmount is only meaningful once it has been returned (the
+ * final bill can't be known before then — see rentalBilling.ts), so payment
+ * status must never be derived from totalAmount/paid alone without checking
+ * status first. A vehicle being returned does not by itself mean fully paid.
+ */
+export function getPaymentStatus(
+  status: string,
+  totalAmount: number,
+  paid: number
+): { label: string; tone: "success" | "warning" | "danger" | "neutral" } {
+  if (status !== "RETURNED") return { label: "Calculated at Return", tone: "neutral" };
+  if (paid >= totalAmount - 0.5) return { label: "Fully Paid", tone: "success" };
+  if (paid > 0) return { label: "Payment Pending", tone: "warning" };
+  return { label: "Payment Pending", tone: "danger" };
+}

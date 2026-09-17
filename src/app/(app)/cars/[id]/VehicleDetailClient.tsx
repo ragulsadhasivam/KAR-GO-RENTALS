@@ -18,7 +18,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { StatusPill, Badge } from "@/components/ui/StatusPill";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/DropdownMenu";
-import { formatCurrency, formatDate, formatDateTime, vehicleName } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateTime, vehicleName, getPaymentStatus } from "@/lib/utils";
 import { categoryLabel } from "@/lib/constants";
 import { getDocumentStatus } from "@/lib/services/documentStatus";
 
@@ -219,26 +219,35 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
                   <TH>Pickup</TH>
                   <TH>Return</TH>
                   <TH>Amount</TH>
+                  <TH>Payment</TH>
                   <TH>Status</TH>
                 </tr>
               </THead>
               <TBody>
-                {vehicle.bookings.map((b: any) => (
-                  <TR key={b.id}>
-                    <TD>
-                      <Link href={`/bookings/${b.id}`} className="text-gold-400 hover:text-gold-300 font-medium">
-                        {b.code}
-                      </Link>
-                    </TD>
-                    <TD>{b.customer.fullName}</TD>
-                    <TD>{formatDateTime(b.pickupAt)}</TD>
-                    <TD>{formatDateTime(b.returnAt)}</TD>
-                    <TD>{formatCurrency(b.totalAmount)}</TD>
-                    <TD>
-                      <StatusPill status={b.status} size="sm" />
-                    </TD>
-                  </TR>
-                ))}
+                {vehicle.bookings.map((b: any) => {
+                  const isReturned = b.status === "RETURNED" && b.vehicleReturn;
+                  const paid = b.payments?.reduce((s: number, p: any) => s + p.amount, 0) ?? 0;
+                  const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
+                  return (
+                    <TR key={b.id}>
+                      <TD>
+                        <Link href={`/bookings/${b.id}`} className="text-gold-400 hover:text-gold-300 font-medium">
+                          {b.code}
+                        </Link>
+                      </TD>
+                      <TD>{b.customer.fullName}</TD>
+                      <TD>{formatDateTime(b.pickupAt)}</TD>
+                      <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
+                      <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
+                      <TD>
+                        <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
+                      </TD>
+                      <TD>
+                        <StatusPill status={b.status} size="sm" />
+                      </TD>
+                    </TR>
+                  );
+                })}
               </TBody>
             </Table>
           )}

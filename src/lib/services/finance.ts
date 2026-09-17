@@ -32,21 +32,27 @@ export async function getFinanceSummary(start: Date, end: Date, vehicleId?: stri
 }
 
 export async function getUtilisation(vehicleId: string, start: Date, end: Date) {
+  // Bookings no longer carry a known returnAt up front — a booking occupies
+  // its vehicle from pickup until its actual (RETURNED) return, or up to
+  // now if it's still ACTIVE (still out).
   const bookings = await prisma.booking.findMany({
     where: {
       vehicleId,
       status: { in: ["ACTIVE", "RETURNED"] },
       pickupAt: { lte: end },
-      returnAt: { gte: start },
     },
-    select: { pickupAt: true, returnAt: true },
+    select: { pickupAt: true, status: true, vehicleReturn: { select: { returnAt: true } } },
   });
 
+  const now = new Date();
   const totalDays = Math.max(1, differenceInCalendarDays(end, start) + 1);
   let bookedDays = 0;
   for (const b of bookings) {
+    const effectiveEnd = b.vehicleReturn?.returnAt ?? now;
+    if (effectiveEnd < start) continue;
     const from = max([b.pickupAt, start]);
-    const to = min([b.returnAt, end]);
+    const to = min([effectiveEnd, end]);
+    if (to < from) continue;
     bookedDays += Math.max(0, differenceInCalendarDays(to, from) + 1);
   }
   return Math.min(100, Math.round((bookedDays / totalDays) * 100));

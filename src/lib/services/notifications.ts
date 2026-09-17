@@ -8,7 +8,6 @@ export type AppNotification = {
   id: string;
   type:
     | "BOOKING_UPCOMING"
-    | "VEHICLE_RETURN_DUE"
     | "PAYMENT_PENDING"
     | "DOCUMENT_EXPIRING"
     | "DOCUMENT_EXPIRED"
@@ -43,38 +42,24 @@ export async function getNotifications(): Promise<AppNotification[]> {
         date: b.pickupAt,
       });
     }
-
-    const dueReturns = await prisma.booking.findMany({
-      where: { status: "ACTIVE", returnAt: { lte: soon } },
-      include: { customer: true, vehicle: true },
-    });
-    for (const b of dueReturns) {
-      const overdue = b.returnAt < now;
-      notifications.push({
-        id: `return-${b.id}`,
-        type: "VEHICLE_RETURN_DUE",
-        severity: overdue ? "critical" : "warning",
-        title: overdue ? "Return overdue" : "Return due soon",
-        description: `${vehicleName(b.vehicle)} — ${b.customer.fullName}`,
-        href: `/bookings/${b.id}`,
-        date: b.returnAt,
-      });
-    }
   }
 
+  // A booking's totalAmount is only meaningful once returned (the final
+  // bill is unknown before then — see rentalBilling.ts), so pending-payment
+  // notifications only ever apply to RETURNED bookings.
   if (business?.notifyPayments ?? true) {
     const bookings = await prisma.booking.findMany({
-      where: { status: { in: ["ACTIVE", "RETURNED"] } },
+      where: { status: "RETURNED" },
       include: { customer: true, vehicle: true, payments: true },
     });
     for (const b of bookings) {
       const paid = b.payments.reduce((s, p) => s + p.amount, 0);
       const balance = b.totalAmount - paid;
-      if (balance > 0) {
+      if (balance > 0.5) {
         notifications.push({
           id: `payment-${b.id}`,
           type: "PAYMENT_PENDING",
-          severity: b.status === "RETURNED" ? "critical" : "warning",
+          severity: "critical",
           title: "Pending payment",
           description: `${b.customer.fullName} — balance due`,
           href: `/bookings/${b.id}`,

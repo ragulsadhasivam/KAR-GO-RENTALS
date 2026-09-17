@@ -7,11 +7,12 @@ import { Plus, Search, CalendarRange, List, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { StatusPill, Badge } from "@/components/ui/StatusPill";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { NewBookingDrawer } from "@/components/bookings/NewBookingDrawer";
 import { BookingCalendar } from "@/components/bookings/BookingCalendar";
-import { formatCurrency, formatDateTime, cn, vehicleName } from "@/lib/utils";
+import { formatCurrency, formatDateTime, cn, vehicleName, getPaymentStatus } from "@/lib/utils";
+import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
 const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED"];
 
@@ -124,6 +125,7 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
               <TH>Amount</TH>
               <TH>Paid</TH>
               <TH>Balance</TH>
+              <TH>Payment</TH>
               <TH>Status</TH>
               <TH />
             </tr>
@@ -131,18 +133,24 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
           <TBody>
             {filtered.map((b) => {
               const paid = b.payments.reduce((s: number, p: any) => s + p.amount, 0);
+              const isReturned = b.status === "RETURNED" && b.vehicleReturn;
               const balance = b.totalAmount - paid;
+              const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
+              const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
               return (
                 <TR key={b.id}>
                   <TD className="font-medium text-ink-1">{b.code}</TD>
                   <TD>{b.customer.fullName}</TD>
                   <TD>{vehicleName(b.vehicle)}</TD>
                   <TD>{formatDateTime(b.pickupAt)}</TD>
-                  <TD>{formatDateTime(b.returnAt)}</TD>
-                  <TD>{b.rentalDays}d</TD>
-                  <TD>{formatCurrency(b.totalAmount)}</TD>
+                  <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
+                  <TD>{duration ? formatDuration(duration) : "Pending"}</TD>
+                  <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
                   <TD>{formatCurrency(paid)}</TD>
-                  <TD className={balance > 0 ? "text-warning-400 font-medium" : ""}>{formatCurrency(balance)}</TD>
+                  <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : ""}>{isReturned ? formatCurrency(Math.max(0, balance)) : "—"}</TD>
+                  <TD>
+                    <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
+                  </TD>
                   <TD>
                     <StatusPill status={b.status} size="sm" />
                   </TD>

@@ -144,21 +144,32 @@ model Booking {
   vehicle          Vehicle   @relation(fields: [vehicleId], references: [id])
 
   pickupAt         DateTime
-  returnAt         DateTime
   pickupLocation   String
-  returnLocation   String
   currentKm        Int?      // vehicle's odometer reading captured at booking creation
 
   dailyRate        Float
-  rentalDays       Int
+  // Derived-at-return snapshot of complete rental days (see VehicleReturn for
+  // the actual return date/time this was computed from). Never manually
+  // entered and never an independent source of truth — 0 until returned.
+  rentalDays       Int       @default(0)
   extraHourRate    Float
-  extraHours       Float     @default(0) // authoritative once returned; pre-return estimate before that
+  extraHours       Float     @default(0) // billable extra hours, set only at return
   extraKmRate      Float
-  extraKm          Float     @default(0) // authoritative once returned, from actual handover/return KM
+  extraKm          Float     @default(0) // set only at return, from actual handover/return KM
   discount         Float     @default(0)
-  totalAmount      Float
+  // 0 until the vehicle is returned — the final total is only known once
+  // actual return date/time is recorded (see rentalBilling.ts).
+  totalAmount      Float     @default(0)
 
   status           String    @default("BOOKED") // BOOKED | ACTIVE | RETURNED
+
+  // WhatsApp booking-confirmation delivery state — independent of booking
+  // status; a delivery failure never affects the booking itself.
+  whatsappStatus        String    @default("not_sent") // not_sent | sending | sent | failed
+  whatsappMessageId     String?
+  whatsappError         String?
+  whatsappSentAt        DateTime?
+  whatsappLastAttemptAt DateTime?
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -210,6 +221,7 @@ model VehicleReturn {
   otherPenalty          Float     @default(0)
   customerSignatureUrl  String?
   returnAt              DateTime
+  returnLocation        String    @default("")
   createdAt             DateTime  @default(now())
 }
 

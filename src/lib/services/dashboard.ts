@@ -41,47 +41,45 @@ export async function getDashboardData() {
   );
 
   const now = new Date();
-  const todaysBookings = await prisma.booking.findMany({
-    where: {
-      OR: [
-        { pickupAt: { gte: startOfDay(now), lte: endOfDay(now) } },
-        { returnAt: { gte: startOfDay(now), lte: endOfDay(now) } },
-      ],
-    },
-    include: { customer: true, vehicle: true },
-  });
+  // Bookings no longer carry a known returnAt up front, so today's schedule
+  // is built from two independent queries: today's pickups (any status) and
+  // today's actual returns (via the VehicleReturn relation).
+  const [todaysPickups, todaysReturns] = await Promise.all([
+    prisma.booking.findMany({
+      where: { pickupAt: { gte: startOfDay(now), lte: endOfDay(now) } },
+      include: { customer: true, vehicle: true },
+    }),
+    prisma.booking.findMany({
+      where: { vehicleReturn: { returnAt: { gte: startOfDay(now), lte: endOfDay(now) } } },
+      include: { customer: true, vehicle: true, vehicleReturn: true },
+    }),
+  ]);
 
-  const schedule = todaysBookings
-    .flatMap((b) => {
-      const items: { time: Date; label: string; customer: string; vehicle: string; status: string; href: string }[] = [];
-      if (b.pickupAt >= startOfDay(now) && b.pickupAt <= endOfDay(now)) {
-        items.push({
-          time: b.pickupAt,
-          label: b.status === "ACTIVE" || b.status === "RETURNED" ? "Picked up" : "Pickup",
-          customer: b.customer.fullName,
-          vehicle: `${b.vehicle.make} ${b.vehicle.model}`,
-          status: b.status,
-          href: `/bookings/${b.id}`,
-        });
-      }
-      if (b.returnAt >= startOfDay(now) && b.returnAt <= endOfDay(now)) {
-        items.push({
-          time: b.returnAt,
-          label: b.status === "RETURNED" ? "Returned" : "Return",
-          customer: b.customer.fullName,
-          vehicle: `${b.vehicle.make} ${b.vehicle.model}`,
-          status: b.status,
-          href: `/bookings/${b.id}`,
-        });
-      }
-      return items;
-    })
-    .sort((a, b) => a.time.getTime() - b.time.getTime());
+  const schedule = [
+    ...todaysPickups.map((b) => ({
+      time: b.pickupAt,
+      label: b.status === "ACTIVE" || b.status === "RETURNED" ? "Picked up" : "Pickup",
+      customer: b.customer.fullName,
+      vehicle: `${b.vehicle.make} ${b.vehicle.model}`,
+      status: b.status,
+      href: `/bookings/${b.id}`,
+    })),
+    ...todaysReturns.map((b) => ({
+      time: b.vehicleReturn!.returnAt,
+      label: "Returned",
+      customer: b.customer.fullName,
+      vehicle: `${b.vehicle.make} ${b.vehicle.model}`,
+      status: b.status,
+      href: `/bookings/${b.id}`,
+    })),
+  ].sort((a, b) => a.time.getTime() - b.time.getTime());
 
+  // A booking's total/balance is only meaningful once returned — pending
+  // payment is therefore only ever computed for RETURNED bookings.
   const pendingCandidates = await prisma.booking.findMany({
-    where: { status: { in: ["ACTIVE", "RETURNED"] } },
-    include: { customer: true, vehicle: true, payments: true },
-    orderBy: { returnAt: "asc" },
+    where: { status: "RETURNED" },
+    include: { customer: true, vehicle: true, payments: true, vehicleReturn: true },
+    orderBy: { updatedAt: "desc" },
   });
   const paymentPending = pendingCandidates
     .map((b) => {

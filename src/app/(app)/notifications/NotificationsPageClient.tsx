@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, CalendarClock, Undo2, IndianRupee, FileWarning, Wrench } from "lucide-react";
+import { Bell, CalendarClock, IndianRupee, FileWarning, Wrench } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/StatusPill";
@@ -10,7 +10,6 @@ import type { AppNotification } from "@/lib/services/notifications";
 
 const ICONS: Record<AppNotification["type"], any> = {
   BOOKING_UPCOMING: CalendarClock,
-  VEHICLE_RETURN_DUE: Undo2,
   PAYMENT_PENDING: IndianRupee,
   DOCUMENT_EXPIRING: FileWarning,
   DOCUMENT_EXPIRED: FileWarning,

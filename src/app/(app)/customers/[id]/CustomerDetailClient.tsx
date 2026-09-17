@@ -12,14 +12,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/layout/AdminMenu";
 import { CustomerFormModal } from "@/components/customers/CustomerFormModal";
 import { getDocumentStatus } from "@/lib/services/documentStatus";
-import { formatCurrency, formatDate, formatDateTime, vehicleName } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateTime, vehicleName, getPaymentStatus } from "@/lib/utils";
+import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 import { paymentMethodLabel } from "@/lib/constants";
-
-function paymentStatus(totalAmount: number, paid: number): { label: string; tone: "success" | "warning" | "danger" } {
-  if (paid >= totalAmount) return { label: "Paid", tone: "success" };
-  if (paid > 0) return { label: "Partially Paid", tone: "warning" };
-  return { label: "Pending", tone: "danger" };
-}
 
 export function CustomerDetailClient({ customer }: { customer: any }) {
   const [editOpen, setEditOpen] = useState(false);
@@ -135,8 +130,10 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
             <TBody>
               {customer.bookings.map((b: any) => {
                 const paid = b.payments.reduce((s: number, p: any) => s + p.amount, 0);
+                const isReturned = b.status === "RETURNED" && b.vehicleReturn;
                 const balance = Math.max(0, b.totalAmount - paid);
-                const pStatus = paymentStatus(b.totalAmount, paid);
+                const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
+                const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
                 return (
                   <TR key={b.id}>
                     <TD>
@@ -146,11 +143,11 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
                     </TD>
                     <TD>{vehicleName(b.vehicle)}</TD>
                     <TD>{formatDateTime(b.pickupAt)}</TD>
-                    <TD>{b.status === "RETURNED" && b.vehicleReturn ? formatDateTime(b.vehicleReturn.returnAt) : formatDateTime(b.returnAt)}</TD>
-                    <TD>{b.rentalDays}d</TD>
-                    <TD>{formatCurrency(b.totalAmount)}</TD>
+                    <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "Pending"}</TD>
+                    <TD>{duration ? formatDuration(duration) : "Pending"}</TD>
+                    <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
                     <TD>{formatCurrency(paid)}</TD>
-                    <TD className={balance > 0 ? "text-warning-400 font-medium" : ""}>{formatCurrency(balance)}</TD>
+                    <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : ""}>{isReturned ? formatCurrency(balance) : "—"}</TD>
                     <TD>
                       <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
                     </TD>

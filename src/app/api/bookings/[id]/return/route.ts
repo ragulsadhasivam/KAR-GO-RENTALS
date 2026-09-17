@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { syncVehicleStatus } from "@/lib/services/vehicleStatus";
 import { vehicleReturnSchema } from "@/lib/validations";
+import { calculateRentalBill } from "@/lib/rentalBilling";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,26 +20,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (booking.handover && parsed.data.endingKm < booking.handover.startingKm) {
     return NextResponse.json({ error: "Ending KM cannot be less than the starting KM." }, { status: 400 });
   }
+  if (!(parsed.data.returnAt > booking.pickupAt)) {
+    return NextResponse.json(
+      { error: "Return date and time must be later than the pickup date and time." },
+      { status: 400 }
+    );
+  }
 
-  // Deterministic, single-source-of-truth recalculation. We recompute the
-  // FULL total from the booking's own rate fields plus the actual return-time
-  // figures, rather than incrementing the existing totalAmount — that additive
-  // approach is what silently dropped extra-KM/extra-hour charges before
-  // (they were captured on VehicleReturn but never multiplied by their rates
-  // and folded in), and would also double-charge if a return were ever
-  // resubmitted. Recomputing from scratch is idempotent and matches the
-  // documented rule:
-  //   Final Total = Base Rental + Extra Hour Charges + Extra KM Charges
-  //               + Damage Charge + Other Penalty - Discount
-  const baseRental = booking.dailyRate * booking.rentalDays;
-  const extraHourCharges = booking.extraHourRate * parsed.data.extraHours;
-  const extraKmCharges = booking.extraKmRate * parsed.data.extraKm;
-  const finalTotal = Math.max(
-    0,
-    Math.round(
-      (baseRental + extraHourCharges + extraKmCharges + parsed.data.damageCharge + parsed.data.otherPenalty - booking.discount) * 100
-    ) / 100
-  );
+  // The actual rental duration is only knowable now, from pickup vs actual
+  // return. Recomputed fresh from the single shared calculator (never
+  // manually entered, never incrementally adjusted) so this can't double-
+  // count or drift from what every other screen shows.
+  const bill = calculateRentalBill({
+    pickupAt: booking.pickupAt,
+    returnAt: parsed.data.returnAt,
+    dailyRate: booking.dailyRate,
+    extraHourRate: booking.extraHourRate,
+    extraKmRate: booking.extraKmRate,
+    extraKm: parsed.data.extraKm,
+    damageCharge: parsed.data.damageCharge,
+    otherPenalty: parsed.data.otherPenalty,
+    discount: booking.discount,
+  });
 
   const result = await prisma.$transaction(async (tx) => {
     const vehicleReturn = await tx.vehicleReturn.create({
@@ -49,25 +52,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         newDamageNotes: parsed.data.newDamageNotes || null,
         photos: JSON.stringify(parsed.data.photos ?? []),
         extraKm: parsed.data.extraKm,
-        extraHours: parsed.data.extraHours,
+        extraHours: bill.duration.billableHours,
         damageCharge: parsed.data.damageCharge,
         otherPenalty: parsed.data.otherPenalty,
         customerSignatureUrl: parsed.data.customerSignatureUrl || null,
-        returnAt: parsed.data.returnAt ?? new Date(),
+        returnAt: parsed.data.returnAt,
+        returnLocation: parsed.data.returnLocation,
       },
     });
 
-    // The return-time figures become the booking's authoritative extra
-    // hours/KM and total — superseding whatever was estimated at creation —
-    // so every other screen (booking detail, dashboard, reports) reads a
-    // single consistent number instead of a stale creation-time guess.
     await tx.booking.update({
       where: { id },
       data: {
         status: "RETURNED",
-        extraHours: parsed.data.extraHours,
+        rentalDays: bill.duration.days,
+        extraHours: bill.duration.billableHours,
         extraKm: parsed.data.extraKm,
-        totalAmount: finalTotal,
+        totalAmount: bill.finalTotal,
       },
     });
     await tx.vehicle.update({ where: { id: booking.vehicleId }, data: { currentKm: parsed.data.endingKm } });
@@ -76,5 +77,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return vehicleReturn;
   });
 
-  return NextResponse.json({ vehicleReturn: result, finalTotal }, { status: 201 });
+  return NextResponse.json({ vehicleReturn: result, bill }, { status: 201 });
 }

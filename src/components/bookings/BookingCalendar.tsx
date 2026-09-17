@@ -26,6 +26,13 @@ const STATUS_DOT: Record<string, string> = {
   RETURNED: "bg-ink-4",
 };
 
+/** Bookings no longer carry a known returnAt up front — a booking occupies
+ * its vehicle from pickup until its actual (RETURNED) return, or up to now
+ * if still open. Used everywhere the calendar needs an end boundary. */
+function effectiveEnd(b: any) {
+  return b.status === "RETURNED" && b.vehicleReturn ? new Date(b.vehicleReturn.returnAt) : new Date();
+}
+
 export function BookingCalendar({ vehicles, bookings }: { vehicles: any[]; bookings: any[] }) {
   const [view, setView] = useState<ViewMode>("week");
   const [anchor, setAnchor] = useState(new Date());
@@ -54,9 +61,7 @@ export function BookingCalendar({ vehicles, bookings }: { vehicles: any[]; booki
   }, [view, anchor]);
 
   function bookingsForVehicleAndDay(vehicleId: string, day: Date) {
-    return bookings.filter(
-      (b) => b.vehicleId === vehicleId && new Date(b.pickupAt) <= endOfDay(day) && new Date(b.returnAt) >= startOfDay(day)
-    );
+    return bookings.filter((b) => b.vehicleId === vehicleId && new Date(b.pickupAt) <= endOfDay(day) && effectiveEnd(b) >= startOfDay(day));
   }
 
   const label =
@@ -172,9 +177,7 @@ function MonthGrid({ days, anchor, bookings, vehicles }: { days: Date[]; anchor:
       {weeks.map((week, wi) => (
         <div key={wi} className="grid grid-cols-7">
           {week.map((day) => {
-            const dayBookings = bookings.filter(
-              (b) => new Date(b.pickupAt) <= endOfDay(day) && new Date(b.returnAt) >= startOfDay(day)
-            );
+            const dayBookings = bookings.filter((b) => new Date(b.pickupAt) <= endOfDay(day) && effectiveEnd(b) >= startOfDay(day));
             return (
               <div
                 key={day.toISOString()}

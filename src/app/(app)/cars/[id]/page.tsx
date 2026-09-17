@@ -11,7 +11,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
     include: {
       pricing: true,
       documents: { orderBy: { createdAt: "desc" } },
-      bookings: { include: { customer: true, payments: true }, orderBy: { pickupAt: "desc" } },
+      bookings: { include: { customer: true, payments: true, vehicleReturn: true }, orderBy: { pickupAt: "desc" } },
       expenses: { orderBy: { date: "desc" } },
       services: { orderBy: { date: "desc" } },
       incidents: { include: { booking: true, customer: true }, orderBy: { date: "desc" } },

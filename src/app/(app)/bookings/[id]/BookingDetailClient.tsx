@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Check,
   Car,
@@ -16,26 +18,65 @@ import {
   MapPin,
   Gauge,
   Fuel,
+  MessageCircle,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { StatusPill, Badge } from "@/components/ui/StatusPill";
 import { Button } from "@/components/ui/Button";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
 import { HandoverDrawer } from "@/components/bookings/HandoverDrawer";
 import { ReturnDrawer } from "@/components/bookings/ReturnDrawer";
 import { AddPaymentModal } from "@/components/bookings/AddPaymentModal";
-import { formatCurrency, formatDate, formatDateTime, vehicleName, cn } from "@/lib/utils";
+import { formatCurrency, formatDateTime, vehicleName, cn, getPaymentStatus } from "@/lib/utils";
+import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
 const STEPS = ["BOOKED", "ACTIVE", "RETURNED"];
 
+const WHATSAPP_BADGE: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" }> = {
+  sent: { label: "WhatsApp Sent", tone: "success" },
+  sending: { label: "Sending WhatsApp…", tone: "warning" },
+  failed: { label: "WhatsApp Failed", tone: "danger" },
+  not_sent: { label: "WhatsApp Not Sent", tone: "neutral" },
+};
+
 export function BookingDetailClient({ booking }: { booking: any }) {
+  const router = useRouter();
   const [handoverOpen, setHandoverOpen] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [resendingWhatsapp, setResendingWhatsapp] = useState(false);
 
   const paid = booking.payments.reduce((s: number, p: any) => s + p.amount, 0);
   const balance = booking.totalAmount - paid;
   const stepIndex = STEPS.indexOf(booking.status);
+  const isReturned = booking.status === "RETURNED";
+  const pStatus = getPaymentStatus(booking.status, booking.totalAmount, paid);
+  const duration = isReturned && booking.vehicleReturn ? calculateRentalDuration(new Date(booking.pickupAt), new Date(booking.vehicleReturn.returnAt)) : null;
+  const canAddPayment = booking.status === "ACTIVE" || (isReturned && balance > 0.5);
+  const whatsappBadge = WHATSAPP_BADGE[booking.whatsappStatus] ?? WHATSAPP_BADGE.not_sent;
+  const canResendWhatsapp = booking.whatsappStatus !== "sent";
+
+  async function handleResendWhatsapp() {
+    setResendingWhatsapp(true);
+    try {
+      const res = await fetch(`/api/bookings/${booking.id}/whatsapp/resend`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Could not resend WhatsApp confirmation.");
+        return;
+      }
+      if (data.whatsapp?.status === "sent") {
+        toast.success("WhatsApp confirmation sent.");
+      } else {
+        toast.error(data.whatsapp?.error || "WhatsApp confirmation could not be sent.");
+      }
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setResendingWhatsapp(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -45,10 +86,14 @@ export function BookingDetailClient({ booking }: { booking: any }) {
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-page-title">{booking.code}</h1>
               <StatusPill status={booking.status} />
+              <Badge tone={whatsappBadge.tone}>{whatsappBadge.label}</Badge>
             </div>
             <p className="text-body">
               {vehicleName(booking.vehicle)} · {booking.vehicle.registrationNumber} · {booking.customer.fullName}
             </p>
+            {booking.whatsappStatus === "failed" && booking.whatsappError && (
+              <p className="text-[12px] text-danger-400 mt-1">WhatsApp confirmation could not be sent: {booking.whatsappError}</p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {booking.status === "BOOKED" && (
@@ -61,9 +106,14 @@ export function BookingDetailClient({ booking }: { booking: any }) {
                 <Undo2 className="size-4" /> Return Vehicle
               </Button>
             )}
-            {balance > 0 && booking.status !== "BOOKED" && (
+            {canAddPayment && (
               <Button variant="secondary" onClick={() => setPaymentOpen(true)}>
                 <Plus className="size-4" /> Add Payment
+              </Button>
+            )}
+            {canResendWhatsapp && (
+              <Button variant="secondary" onClick={handleResendWhatsapp} loading={resendingWhatsapp}>
+                <MessageCircle className="size-4" /> Resend WhatsApp
               </Button>
             )}
           </div>
@@ -104,22 +154,32 @@ export function BookingDetailClient({ booking }: { booking: any }) {
             </CardHeader>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-4">
               <Info icon={Calendar} label="Pickup" value={formatDateTime(booking.pickupAt)} />
-              <Info icon={Calendar} label="Return" value={formatDateTime(booking.returnAt)} />
-              <Info icon={Calendar} label="Duration" value={`${booking.rentalDays} day(s)`} />
+              <Info
+                icon={Calendar}
+                label="Duration"
+                value={duration ? formatDuration(duration) : "Calculated at return"}
+              />
               <Info icon={MapPin} label="Pickup Location" value={booking.pickupLocation} />
-              <Info icon={MapPin} label="Return Location" value={booking.returnLocation} />
             </div>
           </Card>
 
           <Card padding="md">
             <CardHeader>
               <CardTitle>Payment</CardTitle>
+              <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
             </CardHeader>
-            <div className="grid grid-cols-3 gap-4 mb-5">
-              <Info icon={IndianRupee} label="Total Rental Amount" value={formatCurrency(booking.totalAmount)} />
-              <Info icon={IndianRupee} label="Amount Paid" value={formatCurrency(paid)} />
-              <Info icon={IndianRupee} label="Balance" value={formatCurrency(balance)} highlight={balance > 0} />
-            </div>
+            {isReturned ? (
+              <div className="grid grid-cols-3 gap-4 mb-5">
+                <Info icon={IndianRupee} label="Final Total" value={formatCurrency(booking.totalAmount)} />
+                <Info icon={IndianRupee} label="Amount Paid" value={formatCurrency(paid)} />
+                <Info icon={IndianRupee} label="Balance" value={formatCurrency(Math.max(0, balance))} highlight={balance > 0.5} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                <Info icon={IndianRupee} label="Amount Paid" value={formatCurrency(paid)} />
+                <Info icon={IndianRupee} label="Final Total" value="Calculated at return" />
+              </div>
+            )}
             {booking.payments.length === 0 ? (
               <p className="text-secondary">No payments recorded yet.</p>
             ) : (
@@ -174,6 +234,7 @@ export function BookingDetailClient({ booking }: { booking: any }) {
                 <Info icon={Gauge} label="Ending KM" value={`${booking.vehicleReturn.endingKm.toLocaleString("en-IN")} km`} />
                 <Info icon={Fuel} label="Fuel Level" value={booking.vehicleReturn.fuelLevel} />
                 <Info icon={Calendar} label="Return Time" value={formatDateTime(booking.vehicleReturn.returnAt)} />
+                <Info icon={MapPin} label="Return Location" value={booking.vehicleReturn.returnLocation} />
                 <Info icon={IndianRupee} label="Damage Charge" value={formatCurrency(booking.vehicleReturn.damageCharge)} />
                 <Info icon={IndianRupee} label="Other Penalty" value={formatCurrency(booking.vehicleReturn.otherPenalty)} />
               </div>
@@ -255,8 +316,19 @@ export function BookingDetailClient({ booking }: { booking: any }) {
         onOpenChange={setReturnOpen}
         bookingId={booking.id}
         startingKm={booking.handover?.startingKm ?? booking.vehicle.currentKm}
+        pickupAt={booking.pickupAt}
+        dailyRate={booking.dailyRate}
+        extraHourRate={booking.extraHourRate}
+        extraKmRate={booking.extraKmRate}
+        discount={booking.discount}
+        amountPaid={paid}
       />
-      <AddPaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} bookingId={booking.id} balance={balance} />
+      <AddPaymentModal
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        bookingId={booking.id}
+        balance={isReturned ? balance : null}
+      />
     </div>
   );
 }

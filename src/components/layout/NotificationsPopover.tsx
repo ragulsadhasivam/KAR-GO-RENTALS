@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import * as Popover from "@radix-ui/react-popover";
-import { Bell, CalendarClock, Undo2, IndianRupee, FileWarning, Wrench } from "lucide-react";
+import { Bell, CalendarClock, IndianRupee, FileWarning, Wrench } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { AppNotification } from "@/lib/services/notifications";
 
 const ICONS: Record<AppNotification["type"], any> = {
   BOOKING_UPCOMING: CalendarClock,
-  VEHICLE_RETURN_DUE: Undo2,
   PAYMENT_PENDING: IndianRupee,
   DOCUMENT_EXPIRING: FileWarning,
   DOCUMENT_EXPIRED: FileWarning,

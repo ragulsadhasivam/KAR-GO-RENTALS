@@ -14,13 +14,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const booking = await prisma.booking.findUnique({ where: { id }, include: { payments: true } });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
 
-  const alreadyPaid = booking.payments.reduce((s, p) => s + p.amount, 0);
-  const balance = booking.totalAmount - alreadyPaid;
-  if (parsed.data.amount > balance + 0.5) {
-    return NextResponse.json(
-      { error: `Amount exceeds the remaining balance of ₹${Math.round(balance)}.` },
-      { status: 400 }
-    );
+  // totalAmount is 0 until the booking is returned (the final bill isn't
+  // known before then), so the balance cap only applies once returned.
+  if (booking.status === "RETURNED") {
+    const alreadyPaid = booking.payments.reduce((s, p) => s + p.amount, 0);
+    const balance = booking.totalAmount - alreadyPaid;
+    if (parsed.data.amount > balance + 0.5) {
+      return NextResponse.json(
+        { error: `Amount exceeds the remaining balance of ₹${Math.round(balance)}.` },
+        { status: 400 }
+      );
+    }
   }
 
   const admin = await getCurrentAdmin();

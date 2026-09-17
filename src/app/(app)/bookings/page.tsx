@@ -5,7 +5,7 @@ import { BookingsPageClient } from "./BookingsPageClient";
 export default async function BookingsPage() {
   const [bookings, vehicles] = await Promise.all([
     prisma.booking.findMany({
-      include: { customer: true, vehicle: true, payments: true },
+      include: { customer: true, vehicle: true, payments: true, vehicleReturn: true },
       orderBy: { pickupAt: "desc" },
     }),
     prisma.vehicle.findMany({ where: { archived: false }, include: { pricing: true } }),
