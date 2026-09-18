@@ -43,13 +43,20 @@ export function NotificationsPageClient({ notifications }: { notifications: AppN
           {notifications.map((n) => {
             const Icon = ICONS[n.type];
             return (
-              <Link key={n.id} href={n.href} className="flex items-start gap-4 px-5 py-4 hover:bg-surface-2/60 transition-colors">
-                <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", TONE_CLASSES[n.severity])}>
+              <Link
+                key={n.id}
+                href={n.href}
+                className={cn(
+                  "flex items-start gap-4 px-5 py-4 border-l-2 hover:bg-surface-2/60 transition-colors",
+                  n.severity === "critical" ? "border-l-danger-500/60 bg-danger-500/[0.03]" : "border-l-transparent"
+                )}
+              >
+                <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", TONE_CLASSES[n.severity])}>
                   <Icon className="size-[18px]" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-[14px] font-medium text-ink-1">{n.title}</p>
+                    <p className={cn("text-[14px]", n.severity === "critical" ? "font-semibold text-ink-1" : "font-medium text-ink-1")}>{n.title}</p>
                     <Badge tone={TONE_BADGE[n.severity]}>{n.severity}</Badge>
                   </div>
                   <p className="text-secondary mt-0.5">{n.description}</p>

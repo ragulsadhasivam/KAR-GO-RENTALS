@@ -46,7 +46,7 @@ export async function getDashboardData() {
   // today's actual returns (via the VehicleReturn relation).
   const [todaysPickups, todaysReturns] = await Promise.all([
     prisma.booking.findMany({
-      where: { pickupAt: { gte: startOfDay(now), lte: endOfDay(now) } },
+      where: { pickupAt: { gte: startOfDay(now), lte: endOfDay(now) }, status: { not: "CANCELLED" } },
       include: { customer: true, vehicle: true },
     }),
     prisma.booking.findMany({

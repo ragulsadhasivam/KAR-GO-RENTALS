@@ -1,7 +1,7 @@
 export const VEHICLE_STATUS = ["AVAILABLE", "BOOKED", "ACTIVE", "SERVICE"] as const;
 export type VehicleStatus = (typeof VEHICLE_STATUS)[number];
 
-export const BOOKING_STATUS = ["BOOKED", "ACTIVE", "RETURNED"] as const;
+export const BOOKING_STATUS = ["BOOKED", "ACTIVE", "RETURNED", "CANCELLED"] as const;
 export type BookingStatus = (typeof BOOKING_STATUS)[number];
 
 export const PAYMENT_METHODS = ["CASH", "UPI", "BANK_TRANSFER", "CARD", "OTHER"] as const;

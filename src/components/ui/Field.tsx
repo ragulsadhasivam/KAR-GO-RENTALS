@@ -31,7 +31,7 @@ export function FieldWrap({ label, error, hint, required, children, className }:
 }
 
 const inputBase =
-  "h-10 w-full rounded-xl bg-surface-2 border px-3.5 text-[14px] text-ink-1 placeholder:text-ink-4 transition-colors duration-150 focus-ring outline-none";
+  "h-10 w-full rounded-lg bg-surface-2 border px-3.5 text-[14px] text-ink-1 placeholder:text-ink-4 transition-colors duration-150 focus-ring outline-none";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -72,7 +72,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         className={cn(
-          "w-full rounded-xl bg-surface-2 border px-3.5 py-2.5 text-[14px] text-ink-1 placeholder:text-ink-4 transition-colors duration-150 focus-ring outline-none min-h-[88px] resize-y",
+          "w-full rounded-lg bg-surface-2 border px-3.5 py-2.5 text-[14px] text-ink-1 placeholder:text-ink-4 transition-colors duration-150 focus-ring outline-none min-h-[88px] resize-y",
           error ? "border-danger-500/60" : "border-border hover:border-border-strong focus:border-gold-500/60",
           className
         )}

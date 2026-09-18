@@ -13,6 +13,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const booking = await prisma.booking.findUnique({ where: { id } });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+  if (booking.status === "CANCELLED") {
+    return NextResponse.json({ error: "This booking has been cancelled and cannot be handed over." }, { status: 400 });
+  }
   if (booking.status !== "BOOKED") {
     return NextResponse.json({ error: "This booking has already been handed over." }, { status: 400 });
   }

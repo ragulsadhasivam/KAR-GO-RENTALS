@@ -111,16 +111,16 @@ function NavLink({
     <Link
       href={item.href}
       className={cn(
-        "group relative flex items-center gap-3 rounded-xl px-3 h-10 text-[13.5px] font-medium transition-all duration-150",
+        "group relative flex items-center gap-3 rounded-lg px-3 h-10 text-[13.5px] font-medium transition-colors duration-150",
         collapsed && "justify-center px-0",
         active
-          ? "bg-surface-3 text-ink-1 shadow-[inset_0_0_0_1px_var(--color-gold-500)/30] ring-1 ring-gold-500/25"
-          : "text-ink-3 hover:text-ink-1 hover:bg-surface-2"
+          ? "bg-surface-3 text-ink-1 ring-1 ring-inset ring-gold-500/25"
+          : "text-ink-3 hover:text-ink-1 hover:bg-surface-2/70"
       )}
       title={collapsed ? item.label : undefined}
     >
-      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-gradient-to-b from-gold-400 to-gold-600" />}
-      <Icon className={cn("size-[18px] shrink-0", active && "text-gold-400")} />
+      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2px] rounded-full bg-gold-400" />}
+      <Icon className={cn("size-[17px] shrink-0", active ? "text-gold-400" : "text-ink-4 group-hover:text-ink-2")} />
       {!collapsed && <span className="truncate">{item.label}</span>}
     </Link>
   );

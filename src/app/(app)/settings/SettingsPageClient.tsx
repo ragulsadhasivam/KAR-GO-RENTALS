@@ -297,13 +297,14 @@ function AdminsSection({ admins, currentAdminId }: { admins: any[]; currentAdmin
             </div>
             <div className="flex items-center gap-2">
               <Badge tone={admin.isDisabled ? "danger" : "success"}>{admin.isDisabled ? "Disabled" : "Full Access"}</Badge>
-              <button onClick={() => setEditing(admin)} className="rounded-lg p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1">
+              <button onClick={() => setEditing(admin)} aria-label={`Edit ${admin.name}`} className="rounded-md p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1">
                 <Pencil className="size-4" />
               </button>
               <button
                 onClick={() => setDisableTarget(admin)}
-                className="rounded-lg p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1"
+                className="rounded-md p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1"
                 title={admin.isDisabled ? "Enable" : "Disable"}
+                aria-label={admin.isDisabled ? `Enable ${admin.name}` : `Disable ${admin.name}`}
               >
                 {admin.isDisabled ? <CheckCircle2 className="size-4" /> : <Ban className="size-4" />}
               </button>
@@ -456,10 +457,10 @@ function CarsSection({ vehicles }: { vehicles: any[] }) {
               <p className="text-secondary font-mono">{v.registrationNumber}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setEditing(v)} className="rounded-lg p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1">
+              <button onClick={() => setEditing(v)} aria-label={`Edit ${vehicleName(v)}`} className="rounded-md p-2 text-ink-3 hover:bg-surface-3 hover:text-ink-1">
                 <Pencil className="size-4" />
               </button>
-              <button onClick={() => setArchiveTarget(v)} className="rounded-lg p-2 text-ink-3 hover:bg-danger-500/15 hover:text-danger-400">
+              <button onClick={() => setArchiveTarget(v)} aria-label={`Archive ${vehicleName(v)}`} className="rounded-md p-2 text-ink-3 hover:bg-danger-500/15 hover:text-danger-400">
                 <Archive className="size-4" />
               </button>
             </div>

@@ -105,14 +105,16 @@ export function ReportsPageClient({ vehicles }: { vehicles: any[] }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <KPICard label="Revenue" value={formatCurrency(data.revenue)} icon={TrendingUp} tone="gold" />
             <KPICard label="Expenses" value={formatCurrency(data.expenses)} icon={TrendingDown} tone="blue" />
             <KPICard label="Profit" value={formatCurrency(data.profit)} icon={IndianRupee} tone="success" />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <KPICard label="Bookings" value={String(data.bookingsCount)} icon={CalendarRange} tone="neutral" />
             <KPICard label="Rental Days" value={String(data.rentalDays)} icon={Gauge} tone="neutral" />
-            <KPICard label="Fuel Cost" value={formatCurrency(data.fuelCost)} icon={Fuel} tone="blue" />
-            <KPICard label="Service Cost" value={formatCurrency(data.serviceCost)} icon={Wrench} tone="blue" />
+            <KPICard label="Fuel Cost" value={formatCurrency(data.fuelCost)} icon={Fuel} tone="neutral" />
+            <KPICard label="Service Cost" value={formatCurrency(data.serviceCost)} icon={Wrench} tone="neutral" />
           </div>
 
           <Card padding="md">

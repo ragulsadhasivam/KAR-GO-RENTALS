@@ -22,9 +22,9 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border shadow-card",
+        "rounded-xl border shadow-card",
         variant === "solid" && "bg-surface border-border-subtle",
-        variant === "glass" && "glass rounded-2xl",
+        variant === "glass" && "glass rounded-xl",
         paddingClasses[padding],
         className
       )}

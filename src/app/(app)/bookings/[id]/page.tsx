@@ -13,6 +13,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
       handover: true,
       vehicleReturn: true,
       incidents: true,
+      cancelledBy: true,
     },
   });
   if (!booking) notFound();

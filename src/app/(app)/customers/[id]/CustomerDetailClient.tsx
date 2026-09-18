@@ -131,11 +131,12 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
               {customer.bookings.map((b: any) => {
                 const paid = b.payments.reduce((s: number, p: any) => s + p.amount, 0);
                 const isReturned = b.status === "RETURNED" && b.vehicleReturn;
+                const isCancelled = b.status === "CANCELLED";
                 const balance = Math.max(0, b.totalAmount - paid);
                 const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
                 const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
                 return (
-                  <TR key={b.id}>
+                  <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
                     <TD>
                       <Link href={`/bookings/${b.id}`} className="text-gold-400 hover:text-gold-300 font-medium">
                         {b.code}
@@ -143,9 +144,9 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
                     </TD>
                     <TD>{vehicleName(b.vehicle)}</TD>
                     <TD>{formatDateTime(b.pickupAt)}</TD>
-                    <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "Pending"}</TD>
-                    <TD>{duration ? formatDuration(duration) : "Pending"}</TD>
-                    <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
+                    <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : isCancelled ? "—" : "Pending"}</TD>
+                    <TD>{duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}</TD>
+                    <TD>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
                     <TD>{formatCurrency(paid)}</TD>
                     <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : ""}>{isReturned ? formatCurrency(balance) : "—"}</TD>
                     <TD>

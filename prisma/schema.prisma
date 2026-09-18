@@ -45,6 +45,7 @@ model Admin {
 
   payments             Payment[]
   partnerTransactions  PartnerTransaction[]
+  cancelledBookings    Booking[] @relation("BookingCancelledBy")
 }
 
 model Counter {
@@ -161,7 +162,13 @@ model Booking {
   // actual return date/time is recorded (see rentalBilling.ts).
   totalAmount      Float     @default(0)
 
-  status           String    @default("BOOKED") // BOOKED | ACTIVE | RETURNED
+  status           String    @default("BOOKED") // BOOKED | ACTIVE | RETURNED | CANCELLED
+
+  // Set only when status is CANCELLED — who cancelled it and when. No refund/
+  // payment fields: cancellation never touches money (see the cancel route).
+  cancelledAt      DateTime?
+  cancelledById    String?
+  cancelledBy      Admin?    @relation("BookingCancelledBy", fields: [cancelledById], references: [id])
 
   // WhatsApp booking-confirmation delivery state — independent of booking
   // status; a delivery failure never affects the booking itself.

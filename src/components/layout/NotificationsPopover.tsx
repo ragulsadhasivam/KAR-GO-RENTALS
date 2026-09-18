@@ -34,7 +34,10 @@ export function NotificationsPopover() {
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <button className="relative flex size-9 items-center justify-center rounded-xl bg-surface-2 border border-border text-ink-2 hover:text-ink-1 hover:bg-surface-3 transition-colors focus-ring">
+        <button
+          aria-label={items.length > 0 ? `Notifications (${items.length} unread)` : "Notifications"}
+          className="relative flex size-9 items-center justify-center rounded-lg bg-surface-2 border border-border text-ink-2 hover:text-ink-1 hover:bg-surface-3 hover:border-border-strong transition-colors focus-ring"
+        >
           <Bell className="size-[17px]" />
           {items.length > 0 && (
             <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-danger-500 text-[9px] font-bold text-white">

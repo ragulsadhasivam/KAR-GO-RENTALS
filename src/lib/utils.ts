@@ -75,6 +75,7 @@ export function getPaymentStatus(
   totalAmount: number,
   paid: number
 ): { label: string; tone: "success" | "warning" | "danger" | "neutral" } {
+  if (status === "CANCELLED") return { label: "Cancelled", tone: "neutral" };
   if (status !== "RETURNED") return { label: "Calculated at Return", tone: "neutral" };
   if (paid >= totalAmount - 0.5) return { label: "Fully Paid", tone: "success" };
   if (paid > 0) return { label: "Payment Pending", tone: "warning" };

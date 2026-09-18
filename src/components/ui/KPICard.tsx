@@ -12,9 +12,9 @@ interface KPICardProps {
 }
 
 const toneStyles = {
-  gold: "text-gold-300 bg-gold-500/10 border-gold-500/20",
-  blue: "text-blue-300 bg-blue-500/10 border-blue-500/20",
-  success: "text-success-300 bg-success-500/10 border-success-500/20",
+  gold: "text-gold-300 bg-gold-500/8 border-gold-500/15",
+  blue: "text-blue-300 bg-blue-500/8 border-blue-500/15",
+  success: "text-success-300 bg-success-500/8 border-success-500/15",
   neutral: "text-ink-3 bg-surface-3 border-border",
 };
 
@@ -34,7 +34,7 @@ export function KPICard({ label, value, icon: Icon, tone = "neutral", trend, cla
         )}
       </div>
       {Icon && (
-        <div className={cn("shrink-0 rounded-xl border p-2 sm:p-2.5", toneStyles[tone])}>
+        <div className={cn("shrink-0 rounded-lg border p-2 sm:p-2.5", toneStyles[tone])}>
           <Icon className="size-4 sm:size-5" />
         </div>
       )}

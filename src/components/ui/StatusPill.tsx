@@ -25,6 +25,7 @@ const STATUS_CONFIG: Record<string, { label: string; tone: Tone; icon: LucideIco
   ACTIVE: { label: "Active", tone: "info", icon: CircleDot },
   SERVICE: { label: "In Service", tone: "neutral", icon: Wrench },
   RETURNED: { label: "Returned", tone: "neutral", icon: CheckCircle2 },
+  CANCELLED: { label: "Cancelled", tone: "neutral", icon: XCircle },
   VALID: { label: "Valid", tone: "success", icon: CheckCircle2 },
   EXPIRING_SOON: { label: "Expiring Soon", tone: "warning", icon: AlertTriangle },
   EXPIRED: { label: "Expired", tone: "danger", icon: XCircle },

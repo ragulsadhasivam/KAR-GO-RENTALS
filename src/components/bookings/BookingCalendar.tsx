@@ -75,10 +75,10 @@ export function BookingCalendar({ vehicles, bookings }: { vehicles: any[]; booki
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="secondary" size="icon" onClick={() => navigate(-1)} aria-label="Previous period">
             <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="secondary" size="icon" onClick={() => navigate(1)}>
+          <Button variant="secondary" size="icon" onClick={() => navigate(1)} aria-label="Next period">
             <ChevronRight className="size-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setAnchor(new Date())}>

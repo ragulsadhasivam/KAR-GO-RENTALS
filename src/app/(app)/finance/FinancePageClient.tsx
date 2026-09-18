@@ -141,7 +141,7 @@ export function FinancePageClient({ summary, expenses, payments, transactions, a
                     <TD>{paymentMethodLabel(e.paymentMethod)}</TD>
                     <TD className="text-ink-1 font-medium">{formatCurrency(e.amount)}</TD>
                     <TD>
-                      <button onClick={() => setDeleteId(e.id)} className="text-ink-4 hover:text-danger-400">
+                      <button onClick={() => setDeleteId(e.id)} aria-label="Delete expense" className="text-ink-4 hover:text-danger-400">
                         <Trash2 className="size-4" />
                       </button>
                     </TD>

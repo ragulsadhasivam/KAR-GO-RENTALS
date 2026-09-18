@@ -27,9 +27,9 @@ export function DashboardHero({ items }: { items: HeroVehicle[] }) {
   if (!active) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-gradient-to-br from-surface-2 via-surface to-base">
-      <div className="pointer-events-none absolute -top-24 right-10 size-[380px] rounded-full bg-gold-500/12 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-32 left-0 size-[300px] rounded-full bg-blue-500/10 blur-[100px]" />
+    <div className="relative overflow-hidden rounded-xl border border-border-subtle bg-gradient-to-br from-surface-2 via-surface to-base">
+      {/* Single restrained showroom-spotlight — supports the vehicle photo rather than competing with it. */}
+      <div className="pointer-events-none absolute top-1/2 right-[8%] size-[420px] -translate-y-1/2 rounded-full bg-gold-500/[0.07] blur-[110px]" />
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 p-6 sm:p-8">
         <div className="flex flex-col justify-between">

@@ -128,7 +128,7 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon">
+                <Button variant="secondary" size="icon" aria-label="More vehicle actions">
                   <MoreVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -226,10 +226,11 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
               <TBody>
                 {vehicle.bookings.map((b: any) => {
                   const isReturned = b.status === "RETURNED" && b.vehicleReturn;
+                  const isCancelled = b.status === "CANCELLED";
                   const paid = b.payments?.reduce((s: number, p: any) => s + p.amount, 0) ?? 0;
                   const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
                   return (
-                    <TR key={b.id}>
+                    <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
                       <TD>
                         <Link href={`/bookings/${b.id}`} className="text-gold-400 hover:text-gold-300 font-medium">
                           {b.code}
@@ -238,7 +239,7 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
                       <TD>{b.customer.fullName}</TD>
                       <TD>{formatDateTime(b.pickupAt)}</TD>
                       <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
-                      <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
+                      <TD>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
                       <TD>
                         <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
                       </TD>

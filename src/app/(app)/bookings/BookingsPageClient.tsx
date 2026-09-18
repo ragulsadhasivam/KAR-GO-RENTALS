@@ -14,7 +14,7 @@ import { BookingCalendar } from "@/components/bookings/BookingCalendar";
 import { formatCurrency, formatDateTime, cn, vehicleName, getPaymentStatus } from "@/lib/utils";
 import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
-const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED"];
+const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED", "CANCELLED"];
 
 export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; vehicles: any[] }) {
   const router = useRouter();
@@ -134,20 +134,21 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
             {filtered.map((b) => {
               const paid = b.payments.reduce((s: number, p: any) => s + p.amount, 0);
               const isReturned = b.status === "RETURNED" && b.vehicleReturn;
+              const isCancelled = b.status === "CANCELLED";
               const balance = b.totalAmount - paid;
               const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
               const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
               return (
-                <TR key={b.id}>
+                <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
                   <TD className="font-medium text-ink-1">{b.code}</TD>
-                  <TD>{b.customer.fullName}</TD>
+                  <TD className="font-medium text-ink-1">{b.customer.fullName}</TD>
                   <TD>{vehicleName(b.vehicle)}</TD>
                   <TD>{formatDateTime(b.pickupAt)}</TD>
-                  <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
-                  <TD>{duration ? formatDuration(duration) : "Pending"}</TD>
-                  <TD>{isReturned ? formatCurrency(b.totalAmount) : "Pending"}</TD>
-                  <TD>{formatCurrency(paid)}</TD>
-                  <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : ""}>{isReturned ? formatCurrency(Math.max(0, balance)) : "—"}</TD>
+                  <TD className="text-ink-3">{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
+                  <TD className="text-ink-3">{duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}</TD>
+                  <TD>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
+                  <TD className="text-ink-4">{formatCurrency(paid)}</TD>
+                  <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "text-ink-3"}>{isReturned ? formatCurrency(Math.max(0, balance)) : "—"}</TD>
                   <TD>
                     <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
                   </TD>

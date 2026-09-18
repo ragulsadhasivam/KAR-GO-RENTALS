@@ -19,6 +19,8 @@ import {
   Gauge,
   Fuel,
   MessageCircle,
+  Ban,
+  XCircle,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { StatusPill, Badge } from "@/components/ui/StatusPill";
@@ -27,6 +29,7 @@ import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
 import { HandoverDrawer } from "@/components/bookings/HandoverDrawer";
 import { ReturnDrawer } from "@/components/bookings/ReturnDrawer";
 import { AddPaymentModal } from "@/components/bookings/AddPaymentModal";
+import { CancelBookingDialog } from "@/components/bookings/CancelBookingDialog";
 import { formatCurrency, formatDateTime, vehicleName, cn, getPaymentStatus } from "@/lib/utils";
 import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
@@ -45,9 +48,12 @@ export function BookingDetailClient({ booking }: { booking: any }) {
   const [returnOpen, setReturnOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [resendingWhatsapp, setResendingWhatsapp] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const paid = booking.payments.reduce((s: number, p: any) => s + p.amount, 0);
   const balance = booking.totalAmount - paid;
+  const isCancelled = booking.status === "CANCELLED";
   const stepIndex = STEPS.indexOf(booking.status);
   const isReturned = booking.status === "RETURNED";
   const pStatus = getPaymentStatus(booking.status, booking.totalAmount, paid);
@@ -55,6 +61,26 @@ export function BookingDetailClient({ booking }: { booking: any }) {
   const canAddPayment = booking.status === "ACTIVE" || (isReturned && balance > 0.5);
   const whatsappBadge = WHATSAPP_BADGE[booking.whatsappStatus] ?? WHATSAPP_BADGE.not_sent;
   const canResendWhatsapp = booking.whatsappStatus !== "sent";
+  const canCancel = booking.status === "BOOKED";
+
+  async function handleCancelBooking() {
+    setCancelling(true);
+    try {
+      const res = await fetch(`/api/bookings/${booking.id}/cancel`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Unable to cancel booking. Please try again.");
+        return;
+      }
+      toast.success("Booking cancelled successfully.");
+      setCancelOpen(false);
+      router.refresh();
+    } catch {
+      toast.error("Unable to cancel booking. Please try again.");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   async function handleResendWhatsapp() {
     setResendingWhatsapp(true);
@@ -116,34 +142,50 @@ export function BookingDetailClient({ booking }: { booking: any }) {
                 <MessageCircle className="size-4" /> Resend WhatsApp
               </Button>
             )}
+            {canCancel && (
+              <Button variant="danger" onClick={() => setCancelOpen(true)}>
+                <Ban className="size-4" /> Cancel Booking
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Lifecycle stepper */}
-        <div className="flex items-center">
-          {STEPS.map((step, i) => (
-            <div key={step} className="flex items-center flex-1 last:flex-none">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-full border text-[12px] font-semibold shrink-0",
-                    i < stepIndex && "bg-success-500/15 border-success-500/40 text-success-400",
-                    i === stepIndex && "bg-gold-500/15 border-gold-500/50 text-gold-300",
-                    i > stepIndex && "bg-surface-2 border-border text-ink-4"
-                  )}
-                >
-                  {i < stepIndex ? <Check className="size-3.5" /> : i + 1}
+        {/* Lifecycle stepper — a cancelled booking is a separate terminal
+            state, not a fourth step in the Booked→Active→Returned line. */}
+        {isCancelled ? (
+          <div className="flex items-center gap-2.5 rounded-lg border border-border-subtle bg-surface-2/50 px-4 py-3">
+            <XCircle className="size-4 text-ink-4 shrink-0" />
+            <span className="text-[13px] text-ink-3">
+              This booking was cancelled{booking.cancelledAt ? ` on ${formatDateTime(booking.cancelledAt)}` : ""}
+              {booking.cancelledBy?.name ? ` by ${booking.cancelledBy.name}` : ""}.
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center">
+            {STEPS.map((step, i) => (
+              <div key={step} className="flex items-center flex-1 last:flex-none">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-full border text-[12px] font-semibold shrink-0",
+                      i < stepIndex && "bg-success-500/15 border-success-500/40 text-success-400",
+                      i === stepIndex && "bg-gold-500/15 border-gold-500/50 text-gold-300",
+                      i > stepIndex && "bg-surface-2 border-border text-ink-4"
+                    )}
+                  >
+                    {i < stepIndex ? <Check className="size-3.5" /> : i + 1}
+                  </div>
+                  <span className={cn("text-[13px] font-medium", i <= stepIndex ? "text-ink-1" : "text-ink-4")}>
+                    {step.charAt(0) + step.slice(1).toLowerCase()}
+                  </span>
                 </div>
-                <span className={cn("text-[13px] font-medium", i <= stepIndex ? "text-ink-1" : "text-ink-4")}>
-                  {step.charAt(0) + step.slice(1).toLowerCase()}
-                </span>
+                {i < STEPS.length - 1 && (
+                  <div className={cn("h-px flex-1 mx-4", i < stepIndex ? "bg-success-500/40" : "bg-border")} />
+                )}
               </div>
-              {i < STEPS.length - 1 && (
-                <div className={cn("h-px flex-1 mx-4", i < stepIndex ? "bg-success-500/40" : "bg-border")} />
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -328,6 +370,13 @@ export function BookingDetailClient({ booking }: { booking: any }) {
         onOpenChange={setPaymentOpen}
         bookingId={booking.id}
         balance={isReturned ? balance : null}
+      />
+      <CancelBookingDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        booking={booking}
+        loading={cancelling}
+        onConfirm={handleCancelBooking}
       />
     </div>
   );
