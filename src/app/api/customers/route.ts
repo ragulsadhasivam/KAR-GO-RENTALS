@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim();
   const customers = await prisma.customer.findMany({
     where: q
-      ? { OR: [{ fullName: { contains: q } }, { mobile: { contains: q } }] }
+      ? { OR: [{ fullName: { contains: q, mode: "insensitive" } }, { mobile: { contains: q, mode: "insensitive" } }] }
       : undefined,
     include: { bookings: { include: { payments: true } } },
     orderBy: { createdAt: "desc" },

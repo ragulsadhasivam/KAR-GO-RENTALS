@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
   Check,
   Car,
   User,
@@ -106,6 +107,14 @@ export function BookingDetailClient({ booking }: { booking: any }) {
 
   return (
     <div className="space-y-6">
+      <Link
+        href="/bookings"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-3 hover:text-ink-1 transition-colors"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Bookings
+      </Link>
+
       <Card padding="lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>

@@ -15,10 +15,10 @@ export async function GET(req: NextRequest) {
       status: status && status !== "ALL" ? status : undefined,
       OR: q
         ? [
-            { code: { contains: q } },
-            { customer: { fullName: { contains: q } } },
-            { customer: { mobile: { contains: q } } },
-            { vehicle: { registrationNumber: { contains: q } } },
+            { code: { contains: q, mode: "insensitive" } },
+            { customer: { fullName: { contains: q, mode: "insensitive" } } },
+            { customer: { mobile: { contains: q, mode: "insensitive" } } },
+            { vehicle: { registrationNumber: { contains: q, mode: "insensitive" } } },
           ]
         : undefined,
     },

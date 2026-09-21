@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import { getSupabaseAdmin, UPLOADS_BUCKET } from "@/lib/supabase";
 
 const ALLOWED = new Set([
   "image/jpeg",
@@ -30,11 +30,15 @@ export async function POST(req: NextRequest) {
   const safeFolder = folder.replace(/[^a-z0-9-]/gi, "");
   const ext = path.extname(file.name) || (file.type === "application/pdf" ? ".pdf" : ".jpg");
   const filename = `${randomUUID()}${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads", safeFolder);
-  await mkdir(dir, { recursive: true });
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, filename), buffer);
+  const { error } = await getSupabaseAdmin()
+    .storage.from(UPLOADS_BUCKET)
+    .upload(`${safeFolder}/${filename}`, buffer, { contentType: file.type, upsert: false });
+  if (error) {
+    console.error("Upload to Supabase Storage failed:", error.message);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+  }
 
   return NextResponse.json({
     url: `/uploads/${safeFolder}/${filename}`,

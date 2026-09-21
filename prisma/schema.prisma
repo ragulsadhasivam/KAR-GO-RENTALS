@@ -2,9 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// PostgreSQL (Supabase). DATABASE_URL (file:./dev.db) is intentionally not
+// referenced here: it is kept in .env only as the SQLite rollback reference.
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("SUPABASE_DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------------------

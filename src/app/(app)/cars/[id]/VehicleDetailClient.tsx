@@ -93,7 +93,7 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
         className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-3 hover:text-ink-1 transition-colors"
       >
         <ArrowLeft className="size-4" />
-        Back to Fleet
+        Back to Cars
       </Link>
 
       <Card padding="lg" className="relative overflow-hidden">

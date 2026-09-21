@@ -10,24 +10,24 @@ export async function GET(req: NextRequest) {
     prisma.booking.findMany({
       where: {
         OR: [
-          { code: { contains: q } },
-          { customer: { fullName: { contains: q } } },
-          { customer: { mobile: { contains: q } } },
+          { code: { contains: q, mode: "insensitive" } },
+          { customer: { fullName: { contains: q, mode: "insensitive" } } },
+          { customer: { mobile: { contains: q, mode: "insensitive" } } },
         ],
       },
       include: { customer: true, vehicle: true },
       take: 5,
     }),
     prisma.customer.findMany({
-      where: { OR: [{ fullName: { contains: q } }, { mobile: { contains: q } }] },
+      where: { OR: [{ fullName: { contains: q, mode: "insensitive" } }, { mobile: { contains: q, mode: "insensitive" } }] },
       take: 5,
     }),
     prisma.vehicle.findMany({
       where: {
         OR: [
-          { make: { contains: q } },
-          { model: { contains: q } },
-          { registrationNumber: { contains: q } },
+          { make: { contains: q, mode: "insensitive" } },
+          { model: { contains: q, mode: "insensitive" } },
+          { registrationNumber: { contains: q, mode: "insensitive" } },
         ],
       },
       take: 5,
