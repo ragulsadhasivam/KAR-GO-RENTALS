@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/auth";
@@ -20,8 +21,14 @@ export default async function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-full.png" alt={business.name} className="mx-auto w-full max-w-[220px] mb-6" />
+          <Image
+            src="/logo-full.png"
+            alt={business.name}
+            width={1162}
+            height={452}
+            priority
+            className="mx-auto w-full max-w-[220px] h-auto mb-6"
+          />
           <h1 className="text-page-title">Welcome back</h1>
           <p className="text-body mt-2">Sign in to manage your fleet.</p>
         </div>
