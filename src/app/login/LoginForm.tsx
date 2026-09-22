@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
@@ -52,25 +52,25 @@ export function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <div className="relative">
-          <Input
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            required
-            autoComplete="current-password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((s) => !s)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-3 top-[34px] text-ink-3 hover:text-ink-1"
-          >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
-        </div>
+        <Input
+          label="Password"
+          type={showPassword ? "text" : "password"}
+          required
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          endAdornment={
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="text-ink-3 hover:text-ink-1"
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
+        />
 
         {error && (
           <p role="alert" className="text-[13px] text-danger-400 bg-danger-500/10 border border-danger-500/25 rounded-lg px-3 py-2">
@@ -78,8 +78,8 @@ export function LoginForm() {
           </p>
         )}
 
-        <Button type="submit" className="w-full" size="lg" loading={loading}>
-          Sign In <ArrowRight className="size-4" />
+        <Button type="submit" className="w-full justify-center" size="lg" loading={loading}>
+          Sign In
         </Button>
       </form>
     </Card>

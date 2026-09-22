@@ -39,21 +39,29 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   required?: boolean;
   wrapClassName?: string;
+  /** Optional icon/button rendered inside the field, vertically centered against the input's own box (not the label or hint). */
+  endAdornment?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, required, className, wrapClassName, ...props }, ref) => (
+  ({ label, error, hint, required, className, wrapClassName, endAdornment, ...props }, ref) => (
     <FieldWrap label={label} error={error} hint={hint} required={required} className={wrapClassName}>
-      <input
-        ref={ref}
-        className={cn(
-          inputBase,
-          error ? "border-danger-500/60" : "border-border hover:border-border-strong focus:border-gold-500/60",
-          "[color-scheme:dark]",
-          className
+      <div className="relative">
+        <input
+          ref={ref}
+          className={cn(
+            inputBase,
+            error ? "border-danger-500/60" : "border-border hover:border-border-strong focus:border-gold-500/60",
+            "[color-scheme:dark]",
+            endAdornment && "pr-10",
+            className
+          )}
+          {...props}
+        />
+        {endAdornment && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">{endAdornment}</div>
         )}
-        {...props}
-      />
+      </div>
     </FieldWrap>
   )
 );

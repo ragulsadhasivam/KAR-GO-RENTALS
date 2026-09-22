@@ -49,14 +49,16 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border font-medium max-w-full",
         size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-[12px]",
         toneClasses[config.tone],
         className
       )}
     >
-      <Icon className={size === "sm" ? "size-3" : "size-3.5"} />
-      {config.label}
+      <Icon className={cn("shrink-0", size === "sm" ? "size-3" : "size-3.5")} />
+      <span className="min-w-0 truncate" title={config.label}>
+        {config.label}
+      </span>
     </span>
   );
 }

@@ -16,6 +16,13 @@ import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
 const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED", "CANCELLED"];
 
+// Compact cell treatment so all 12 columns fit one desktop viewport with no
+// horizontal scroll (see the fixed colgroup widths on the table below).
+// overflow-hidden is a hard guarantee: no cell's content can ever push the
+// table wider than its column, regardless of the exact width chosen below.
+const cellPad = "px-2.5 py-3 first:pl-4 last:pr-4 overflow-hidden";
+const cellText = "text-[12.5px]";
+
 export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; vehicles: any[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -113,21 +120,35 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
           }
         />
       ) : (
-        <Table>
+        <Table className="table-fixed">
+          <colgroup>
+            <col style={{ width: "10.04%" }} />
+            <col style={{ width: "11.59%" }} />
+            <col style={{ width: "12.33%" }} />
+            <col style={{ width: "8.69%" }} />
+            <col style={{ width: "7.97%" }} />
+            <col style={{ width: "3.62%" }} />
+            <col style={{ width: "6.81%" }} />
+            <col style={{ width: "6.81%" }} />
+            <col style={{ width: "6.92%" }} />
+            <col style={{ width: "7.59%" }} />
+            <col style={{ width: "11.16%" }} />
+            <col style={{ width: "6.47%" }} />
+          </colgroup>
           <THead>
             <tr>
-              <TH>Booking ID</TH>
-              <TH>Customer</TH>
-              <TH>Vehicle</TH>
-              <TH>Pickup</TH>
-              <TH>Return</TH>
-              <TH>Duration</TH>
-              <TH>Amount</TH>
-              <TH>Paid</TH>
-              <TH>Balance</TH>
-              <TH>Payment</TH>
-              <TH>Status</TH>
-              <TH />
+              <TH className={cellPad}>Booking ID</TH>
+              <TH className={cellPad}>Customer</TH>
+              <TH className={cellPad}>Vehicle</TH>
+              <TH className={cellPad}>Pickup</TH>
+              <TH className={cellPad}>Return</TH>
+              <TH className={cellPad}>Duration</TH>
+              <TH className={cellPad}>Amount</TH>
+              <TH className={cellPad}>Paid</TH>
+              <TH className={cellPad}>Balance</TH>
+              <TH className={cellPad}>Payment</TH>
+              <TH className={cellPad}>Status</TH>
+              <TH className={cellPad} />
             </tr>
           </THead>
           <TBody>
@@ -140,24 +161,40 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
               const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
               return (
                 <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
-                  <TD className="font-medium text-ink-1">{b.code}</TD>
-                  <TD className="font-medium text-ink-1">{b.customer.fullName}</TD>
-                  <TD>{vehicleName(b.vehicle)}</TD>
-                  <TD>{formatDateTime(b.pickupAt)}</TD>
-                  <TD className="text-ink-3">{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}</TD>
-                  <TD className="text-ink-3">{duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}</TD>
-                  <TD>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
-                  <TD className="text-ink-4">{formatCurrency(paid)}</TD>
-                  <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "text-ink-3"}>{isReturned ? formatCurrency(Math.max(0, balance)) : "—"}</TD>
-                  <TD>
-                    <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
+                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1 truncate")}>{b.code}</TD>
+                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1 truncate")} title={b.customer.fullName}>
+                    {b.customer.fullName}
                   </TD>
-                  <TD>
-                    <StatusPill status={b.status} size="sm" />
+                  <TD className={cn(cellPad, cellText, "truncate")} title={vehicleName(b.vehicle)}>
+                    {vehicleName(b.vehicle)}
                   </TD>
-                  <TD>
-                    <Link href={`/bookings/${b.id}`} className="flex items-center gap-1 text-gold-400 hover:text-gold-300 font-medium">
-                      View <ArrowRight className="size-3.5" />
+                  <TD className={cn(cellPad, cellText, "truncate")}>{formatDateTime(b.pickupAt)}</TD>
+                  <TD className={cn(cellPad, cellText, "text-ink-3 truncate")}>
+                    {isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}
+                  </TD>
+                  <TD className={cn(cellPad, cellText, "text-ink-3 truncate")}>
+                    {duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}
+                  </TD>
+                  <TD className={cn(cellPad, cellText, "truncate")}>
+                    {isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}
+                  </TD>
+                  <TD className={cn(cellPad, cellText, "text-ink-4 truncate")}>{formatCurrency(paid)}</TD>
+                  <TD className={cn(cellPad, cellText, "truncate", isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "text-ink-3")}>
+                    {isReturned ? formatCurrency(Math.max(0, balance)) : "—"}
+                  </TD>
+                  <TD className={cellPad}>
+                    <Badge tone={pStatus.tone} className="w-full max-w-full justify-center px-1.5">
+                      <span className="min-w-0 truncate" title={pStatus.label}>
+                        {pStatus.label}
+                      </span>
+                    </Badge>
+                  </TD>
+                  <TD className={cellPad}>
+                    <StatusPill status={b.status} size="sm" className="w-full max-w-full justify-center gap-1 px-1.5 whitespace-nowrap" />
+                  </TD>
+                  <TD className={cellPad}>
+                    <Link href={`/bookings/${b.id}`} className="flex items-center gap-1 text-gold-400 hover:text-gold-300 font-medium text-[12.5px] whitespace-nowrap">
+                      View <ArrowRight className="size-3.5 shrink-0" />
                     </Link>
                   </TD>
                 </TR>

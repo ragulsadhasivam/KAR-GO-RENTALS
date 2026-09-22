@@ -135,25 +135,25 @@ function AdminCard({
           error={errors.email}
           onChange={(e) => onChange({ email: e.target.value })}
         />
-        <div className="relative">
-          <Input
-            label="Password"
-            required
-            type={showPassword ? "text" : "password"}
-            placeholder="Minimum 6 characters"
-            value={admin.password}
-            error={errors.password}
-            onChange={(e) => onChange({ password: e.target.value })}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((s) => !s)}
-            className="absolute right-3 top-[34px] text-ink-3 hover:text-ink-1"
-            tabIndex={-1}
-          >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
-        </div>
+        <Input
+          label="Password"
+          required
+          type={showPassword ? "text" : "password"}
+          placeholder="Minimum 6 characters"
+          value={admin.password}
+          error={errors.password}
+          onChange={(e) => onChange({ password: e.target.value })}
+          endAdornment={
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              className="text-ink-3 hover:text-ink-1"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
+        />
       </div>
     </div>
   );
