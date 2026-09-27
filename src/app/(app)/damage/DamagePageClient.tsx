@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, ShieldAlert } from "lucide-react";
-import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
+import { Table, THead, TBody, TR, TH, TD, denseCell, denseCellText } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { Drawer } from "@/components/ui/Drawer";
 import { Select } from "@/components/ui/Field";
 import { AddIncidentModal } from "@/components/damage/AddIncidentModal";
-import { formatCurrency, formatDate, vehicleName } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, vehicleName } from "@/lib/utils";
 import { DAMAGE_STATUS } from "@/lib/constants";
 import { toast } from "sonner";
 
@@ -88,33 +88,44 @@ export function DamagePageClient({ incidents, vehicles, bookings, customers }: a
           }
         />
       ) : (
-        <Table>
+        <Table className="table-fixed">
+          <colgroup>
+            <col style={{ width: "12.35%" }} />
+            <col style={{ width: "13.53%" }} />
+            <col style={{ width: "9.3%" }} />
+            <col style={{ width: "7.65%" }} />
+            <col style={{ width: "7.75%" }} />
+            <col style={{ width: "17.07%" }} />
+            <col style={{ width: "12.35%" }} />
+            <col style={{ width: "7.65%" }} />
+            <col style={{ width: "12.35%" }} />
+          </colgroup>
           <THead>
             <tr>
-              <TH>Incident ID</TH>
-              <TH>Date</TH>
-              <TH>Vehicle</TH>
-              <TH>Booking</TH>
-              <TH>Customer</TH>
-              <TH>Description</TH>
-              <TH>Repair Cost</TH>
-              <TH>Customer Charge</TH>
-              <TH>Status</TH>
+              <TH className={denseCell}>Incident ID</TH>
+              <TH className={denseCell}>Date</TH>
+              <TH className={denseCell}>Vehicle</TH>
+              <TH className={denseCell}>Booking</TH>
+              <TH className={denseCell}>Customer</TH>
+              <TH className={denseCell}>Description</TH>
+              <TH className={denseCell}>Repair Cost</TH>
+              <TH className={denseCell}>Customer Charge</TH>
+              <TH className={denseCell}>Status</TH>
             </tr>
           </THead>
           <TBody>
             {incidents.map((i: any) => (
               <TR key={i.id} className="cursor-pointer" onClick={() => setViewing(i)}>
-                <TD className="font-medium text-ink-1">{i.code}</TD>
-                <TD>{formatDate(i.date)}</TD>
-                <TD>{vehicleName(i.vehicle)}</TD>
-                <TD>{i.booking?.code || "—"}</TD>
-                <TD>{i.customer?.fullName || "—"}</TD>
-                <TD className="max-w-xs truncate">{i.description}</TD>
-                <TD>{i.actualRepairCost ? formatCurrency(i.actualRepairCost) : i.estimatedRepairCost ? `Est. ${formatCurrency(i.estimatedRepairCost)}` : "—"}</TD>
-                <TD>{i.customerCharge ? formatCurrency(i.customerCharge) : "—"}</TD>
-                <TD>
-                  <StatusPill status={i.status} size="sm" />
+                <TD className={cn(denseCell, denseCellText, "font-medium text-ink-1")}>{i.code}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{formatDate(i.date)}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{vehicleName(i.vehicle)}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{i.booking?.code || "—"}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{i.customer?.fullName || "—"}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{i.description}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{i.actualRepairCost ? formatCurrency(i.actualRepairCost) : i.estimatedRepairCost ? `Est. ${formatCurrency(i.estimatedRepairCost)}` : "—"}</TD>
+                <TD className={cn(denseCell, denseCellText)}>{i.customerCharge ? formatCurrency(i.customerCharge) : "—"}</TD>
+                <TD className={denseCell}>
+                  <StatusPill status={i.status} size="sm" className="w-full max-w-full justify-center" />
                 </TD>
               </TR>
             ))}

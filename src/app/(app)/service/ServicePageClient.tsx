@@ -5,12 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Wrench, AlertTriangle, IndianRupee, Calendar, Gauge } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { KPICard } from "@/components/ui/KPICard";
-import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
+import { Table, THead, TBody, TR, TH, TD, denseCell, denseCellText } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/StatusPill";
 import { AddExpenseModal } from "@/components/finance/AddExpenseModal";
-import { formatCurrency, formatDate, vehicleName } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, vehicleName } from "@/lib/utils";
 import { serviceReminderMessage } from "@/lib/services/serviceReminder";
 
 const STATUS_BADGE: Record<string, { tone: "success" | "warning" | "danger" | "neutral"; label: string }> = {
@@ -107,28 +107,37 @@ export function ServicePageClient({ services, vehicles, totalCost, upcoming }: a
             }
           />
         ) : (
-          <Table>
+          <Table className="table-fixed">
+            <colgroup>
+              <col style={{ width: "13.73%" }} />
+              <col style={{ width: "14.53%" }} />
+              <col style={{ width: "18.16%" }} />
+              <col style={{ width: "12.5%" }} />
+              <col style={{ width: "9.6%" }} />
+              <col style={{ width: "9.6%" }} />
+              <col style={{ width: "21.88%" }} />
+            </colgroup>
             <THead>
               <tr>
-                <TH>Date</TH>
-                <TH>Vehicle</TH>
-                <TH>Service Centre</TH>
-                <TH>Bill Number</TH>
-                <TH>KM</TH>
-                <TH>Amount</TH>
-                <TH>Next Service</TH>
+                <TH className={denseCell}>Date</TH>
+                <TH className={denseCell}>Vehicle</TH>
+                <TH className={denseCell}>Service Centre</TH>
+                <TH className={denseCell}>Bill Number</TH>
+                <TH className={denseCell}>KM</TH>
+                <TH className={denseCell}>Amount</TH>
+                <TH className={denseCell}>Next Service</TH>
               </tr>
             </THead>
             <TBody>
               {services.map((s: any) => (
                 <TR key={s.id}>
-                  <TD>{formatDate(s.date)}</TD>
-                  <TD>{vehicleName(s.vehicle)}</TD>
-                  <TD>{s.serviceCentre}</TD>
-                  <TD>{s.billNumber || "—"}</TD>
-                  <TD>{s.kmAtService.toLocaleString("en-IN")} km</TD>
-                  <TD className="text-ink-1 font-medium">{formatCurrency(s.amount)}</TD>
-                  <TD>
+                  <TD className={cn(denseCell, denseCellText)}>{formatDate(s.date)}</TD>
+                  <TD className={cn(denseCell, denseCellText)}>{vehicleName(s.vehicle)}</TD>
+                  <TD className={cn(denseCell, denseCellText)}>{s.serviceCentre}</TD>
+                  <TD className={cn(denseCell, denseCellText)}>{s.billNumber || "—"}</TD>
+                  <TD className={cn(denseCell, denseCellText)}>{s.kmAtService.toLocaleString("en-IN")} km</TD>
+                  <TD className={cn(denseCell, denseCellText, "text-ink-1 font-medium")}>{formatCurrency(s.amount)}</TD>
+                  <TD className={cn(denseCell, denseCellText)}>
                     {s.nextServiceDate || s.nextServiceKm
                       ? [
                           s.nextServiceDate ? formatDate(s.nextServiceDate) : null,

@@ -1,5 +1,16 @@
 import { cn } from "@/lib/utils";
 
+/**
+ * Shared "dense" cell treatment for tables that need `table-fixed` + a
+ * `<colgroup>` to fit many columns in one viewport with no horizontal
+ * scroll (see Bookings, Customer/Service history). Centralized here so
+ * every such table uses the same padding/font/truncate rules instead of
+ * each screen re-deriving its own — the widths still vary per table
+ * (they depend on that table's content), but the cell treatment doesn't.
+ */
+export const denseCell = "px-2.5 py-3 first:pl-4 last:pr-4 truncate tracking-normal";
+export const denseCellText = "text-[12.5px]";
+
 export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
   return (
     <div className="w-full overflow-x-auto rounded-2xl border border-border-subtle bg-surface">

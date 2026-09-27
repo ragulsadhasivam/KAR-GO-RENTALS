@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Plus, Search, CalendarRange, List, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
+import { Table, THead, TBody, TR, TH, TD, denseCell as cellPad, denseCellText as cellText } from "@/components/ui/Table";
 import { StatusPill, Badge } from "@/components/ui/StatusPill";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { NewBookingDrawer } from "@/components/bookings/NewBookingDrawer";
@@ -15,13 +15,6 @@ import { formatCurrency, formatDateTime, cn, vehicleName, getPaymentStatus } fro
 import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
 const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED", "CANCELLED"];
-
-// Compact cell treatment so all 12 columns fit one desktop viewport with no
-// horizontal scroll (see the fixed colgroup widths on the table below).
-// overflow-hidden is a hard guarantee: no cell's content can ever push the
-// table wider than its column, regardless of the exact width chosen below.
-const cellPad = "px-2.5 py-3 first:pl-4 last:pr-4 overflow-hidden";
-const cellText = "text-[12.5px]";
 
 export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; vehicles: any[] }) {
   const router = useRouter();

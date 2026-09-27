@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { Wrench, ArrowRight } from "lucide-react";
+import { Wrench } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/StatusPill";
+import { DashboardListRow } from "./DashboardListRow";
 import { vehicleName, formatDate } from "@/lib/utils";
 
 interface ServiceDueRow {
@@ -26,27 +26,20 @@ export function ServiceDueCard({ items }: { items: ServiceDueRow[] }) {
       ) : (
         <div className="space-y-2">
           {items.map((item) => (
-            <Link
-              key={item.vehicle.id}
-              href={`/cars/${item.vehicle.id}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border-subtle bg-surface-2/50 px-3.5 py-2.5 hover:bg-surface-2 transition-colors"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-medium text-ink-1">{vehicleName(item.vehicle)}</span>
-                  <Badge tone={item.status === "OVERDUE" ? "danger" : "warning"}>
-                    {item.status === "OVERDUE" ? "Overdue" : "Due"}
-                  </Badge>
-                </div>
-                <p className="text-[11.5px] text-ink-4 mt-0.5">
-                  Due by{" "}
-                  {[item.nextServiceKm ? `${item.nextServiceKm.toLocaleString("en-IN")} km` : null, item.nextServiceDate ? formatDate(item.nextServiceDate) : null]
-                    .filter(Boolean)
-                    .join(" or ")}
-                </p>
+            <DashboardListRow key={item.vehicle.id} href={`/cars/${item.vehicle.id}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-ink-1 truncate">{vehicleName(item.vehicle)}</span>
+                <Badge tone={item.status === "OVERDUE" ? "danger" : "warning"} className="shrink-0">
+                  {item.status === "OVERDUE" ? "Overdue" : "Due"}
+                </Badge>
               </div>
-              <ArrowRight className="size-3.5 text-ink-4 shrink-0" />
-            </Link>
+              <p className="text-[11.5px] text-ink-4 mt-0.5 truncate">
+                Due by{" "}
+                {[item.nextServiceKm ? `${item.nextServiceKm.toLocaleString("en-IN")} km` : null, item.nextServiceDate ? formatDate(item.nextServiceDate) : null]
+                  .filter(Boolean)
+                  .join(" or ")}
+              </p>
+            </DashboardListRow>
           ))}
         </div>
       )}

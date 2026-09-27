@@ -7,12 +7,12 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { KPICard } from "@/components/ui/KPICard";
 import { StatusPill, Badge } from "@/components/ui/StatusPill";
 import { Button } from "@/components/ui/Button";
-import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/Table";
+import { Table, THead, TBody, TR, TH, TD, denseCell, denseCellText } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar } from "@/components/layout/AdminMenu";
 import { CustomerFormModal } from "@/components/customers/CustomerFormModal";
 import { getDocumentStatus } from "@/lib/services/documentStatus";
-import { formatCurrency, formatDate, formatDateTime, vehicleName, getPaymentStatus } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, formatDateTime, vehicleName, getPaymentStatus } from "@/lib/utils";
 import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 import { paymentMethodLabel } from "@/lib/constants";
 
@@ -111,20 +111,33 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
         {customer.bookings.length === 0 ? (
           <EmptyState icon={Calendar} title="No bookings yet" />
         ) : (
-          <Table>
+          <Table className="table-fixed">
+            <colgroup>
+              <col style={{ width: "10.04%" }} />
+              <col style={{ width: "18.33%" }} />
+              <col style={{ width: "11.69%" }} />
+              <col style={{ width: "10.56%" }} />
+              <col style={{ width: "3.62%" }} />
+              <col style={{ width: "6.81%" }} />
+              <col style={{ width: "6.81%" }} />
+              <col style={{ width: "6.92%" }} />
+              <col style={{ width: "7.59%" }} />
+              <col style={{ width: "11.16%" }} />
+              <col style={{ width: "6.47%" }} />
+            </colgroup>
             <THead>
               <tr>
-                <TH>Booking ID</TH>
-                <TH>Vehicle</TH>
-                <TH>Pickup</TH>
-                <TH>Return</TH>
-                <TH>Duration</TH>
-                <TH>Total</TH>
-                <TH>Paid</TH>
-                <TH>Balance</TH>
-                <TH>Payment</TH>
-                <TH>Status</TH>
-                <TH />
+                <TH className={denseCell}>Booking ID</TH>
+                <TH className={denseCell}>Vehicle</TH>
+                <TH className={denseCell}>Pickup</TH>
+                <TH className={denseCell}>Return</TH>
+                <TH className={denseCell}>Duration</TH>
+                <TH className={denseCell}>Total</TH>
+                <TH className={denseCell}>Paid</TH>
+                <TH className={denseCell}>Balance</TH>
+                <TH className={denseCell}>Payment</TH>
+                <TH className={denseCell}>Status</TH>
+                <TH className={denseCell} />
               </tr>
             </THead>
             <TBody>
@@ -137,25 +150,25 @@ export function CustomerDetailClient({ customer }: { customer: any }) {
                 const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
                 return (
                   <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
-                    <TD>
+                    <TD className={cn(denseCell, denseCellText, "font-medium")}>
                       <Link href={`/bookings/${b.id}`} className="text-gold-400 hover:text-gold-300 font-medium">
                         {b.code}
                       </Link>
                     </TD>
-                    <TD>{vehicleName(b.vehicle)}</TD>
-                    <TD>{formatDateTime(b.pickupAt)}</TD>
-                    <TD>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : isCancelled ? "—" : "Pending"}</TD>
-                    <TD>{duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}</TD>
-                    <TD>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
-                    <TD>{formatCurrency(paid)}</TD>
-                    <TD className={isReturned && balance > 0.5 ? "text-warning-400 font-medium" : ""}>{isReturned ? formatCurrency(balance) : "—"}</TD>
-                    <TD>
-                      <Badge tone={pStatus.tone}>{pStatus.label}</Badge>
+                    <TD className={cn(denseCell, denseCellText)}>{vehicleName(b.vehicle)}</TD>
+                    <TD className={cn(denseCell, denseCellText)}>{formatDateTime(b.pickupAt)}</TD>
+                    <TD className={cn(denseCell, denseCellText)}>{isReturned ? formatDateTime(b.vehicleReturn.returnAt) : isCancelled ? "—" : "Pending"}</TD>
+                    <TD className={cn(denseCell, denseCellText)}>{duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}</TD>
+                    <TD className={cn(denseCell, denseCellText)}>{isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}</TD>
+                    <TD className={cn(denseCell, denseCellText)}>{formatCurrency(paid)}</TD>
+                    <TD className={cn(denseCell, denseCellText, isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "")}>{isReturned ? formatCurrency(balance) : "—"}</TD>
+                    <TD className={denseCell}>
+                      <Badge tone={pStatus.tone} className="w-full max-w-full justify-center">{pStatus.label}</Badge>
                     </TD>
-                    <TD>
-                      <StatusPill status={b.status} size="sm" />
+                    <TD className={denseCell}>
+                      <StatusPill status={b.status} size="sm" className="w-full max-w-full justify-center" />
                     </TD>
-                    <TD>
+                    <TD className={cn(denseCell, denseCellText)}>
                       <Link href={`/bookings/${b.id}`} className="text-ink-3 hover:text-ink-1">
                         Open
                       </Link>

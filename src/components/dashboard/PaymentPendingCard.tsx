@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { IndianRupee, ArrowRight } from "lucide-react";
+import { IndianRupee } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { DashboardListRow } from "./DashboardListRow";
 import { vehicleName, formatCurrency, formatDate } from "@/lib/utils";
 
 interface PendingRow {
@@ -32,28 +32,27 @@ export function PaymentPendingCard({ items }: { items: PendingRow[] }) {
       ) : (
         <div className="space-y-2">
           {items.slice(0, 6).map(({ booking, paid, balance }) => (
-            <Link
+            <DashboardListRow
               key={booking.id}
               href={`/bookings/${booking.id}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-warning-500/15 bg-warning-500/5 px-3.5 py-2.5 hover:bg-warning-500/10 transition-colors"
+              tone="warning"
+              amount={
+                <>
+                  <p className="text-figure text-[13px] font-semibold text-warning-400 whitespace-nowrap">{formatCurrency(balance)}</p>
+                  <p className="text-[11px] text-ink-4 whitespace-nowrap">
+                    of {formatCurrency(booking.totalAmount)} paid {formatCurrency(paid)}
+                  </p>
+                </>
+              }
             >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-medium text-ink-1">{booking.code}</span>
-                  <span className="text-secondary truncate">{booking.customer.fullName}</span>
-                </div>
-                <p className="text-[11.5px] text-ink-4 mt-0.5">
-                  {vehicleName(booking.vehicle)} · Return {booking.vehicleReturn ? formatDate(booking.vehicleReturn.returnAt) : "—"}
-                </p>
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-ink-1">{booking.code}</span>
+                <span className="text-secondary truncate">{booking.customer.fullName}</span>
               </div>
-              <div className="text-right shrink-0">
-                <p className="text-figure text-[13px] font-semibold text-warning-400">{formatCurrency(balance)}</p>
-                <p className="text-[11px] text-ink-4">
-                  of {formatCurrency(booking.totalAmount)} paid {formatCurrency(paid)}
-                </p>
-              </div>
-              <ArrowRight className="size-3.5 text-ink-4 shrink-0" />
-            </Link>
+              <p className="text-[11.5px] text-ink-4 mt-0.5 truncate">
+                {vehicleName(booking.vehicle)} · Return {booking.vehicleReturn ? formatDate(booking.vehicleReturn.returnAt) : "—"}
+              </p>
+            </DashboardListRow>
           ))}
         </div>
       )}

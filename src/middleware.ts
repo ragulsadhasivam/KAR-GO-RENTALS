@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isPublic = pathname === "/" || PUBLIC_PATHS.some((p) => pathname.startsWith(p));
   const token = req.cookies.get(SESSION_COOKIE)?.value;
 
   let authenticated = false;
