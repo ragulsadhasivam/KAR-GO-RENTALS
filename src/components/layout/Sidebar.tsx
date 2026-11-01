@@ -51,9 +51,7 @@ export function Sidebar({ businessName }: { businessName: string }) {
     >
       <div className={cn("flex items-center h-16 shrink-0 px-4 gap-2", collapsed && "justify-center px-3")}>
         <LogoMark className={collapsed ? "h-8 w-[52px]" : "h-6 w-[128px]"} />
-        {!collapsed && (
-          <span className="text-[13px] font-semibold tracking-tight text-ink-1 truncate flex-1 min-w-0">{businessName}</span>
-        )}
+        {!collapsed && <span className="flex-1 min-w-0" title={businessName} />}
         {!collapsed && (
           <button
             onClick={() => setCollapsed(true)}
