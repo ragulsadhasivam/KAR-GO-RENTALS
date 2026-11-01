@@ -33,27 +33,27 @@ export function RatesAndRules({
           </h2>
           {priced.length > 0 && (
             <div className="mt-8 overflow-x-auto rounded-2xl border border-border-subtle">
-              <table className="w-full min-w-[420px] text-left text-[15px]">
+              <table className="w-full text-left text-[14px] sm:text-[15px]">
                 <caption className="sr-only">Rental rates per car</caption>
                 <thead className="bg-surface text-[13px] text-ink-3">
                   <tr>
-                    <th scope="col" className="px-4 py-3 font-medium">Car</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Per day</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Extra hour</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Extra km</th>
+                    <th scope="col" className="px-3 py-3 font-medium sm:px-4">Car</th>
+                    <th scope="col" className="px-3 py-3 font-medium sm:px-4">Per day</th>
+                    <th scope="col" className="px-3 py-3 font-medium sm:px-4">Extra hour</th>
+                    <th scope="col" className="px-3 py-3 font-medium sm:px-4">Extra km</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-subtle">
                   {priced.map((v) => (
                     <tr key={v.id}>
-                      <th scope="row" className="px-4 py-4 font-semibold text-ink-1">
+                      <th scope="row" className="px-3 py-4 font-semibold text-ink-1 sm:px-4">
                         {v.make} {v.model}
                       </th>
-                      <td className="px-4 py-4 font-semibold text-gold-300">{formatCurrency(v.dailyRate!)}</td>
-                      <td className="px-4 py-4 text-ink-2">
+                      <td className="px-3 py-4 font-semibold text-gold-300 sm:px-4">{formatCurrency(v.dailyRate!)}</td>
+                      <td className="px-3 py-4 text-ink-2 sm:px-4">
                         {v.extraHourRate != null ? formatCurrency(v.extraHourRate) : "—"}
                       </td>
-                      <td className="px-4 py-4 text-ink-2">
+                      <td className="px-3 py-4 text-ink-2 sm:px-4">
                         {v.extraKmRate != null ? formatCurrency(v.extraKmRate) : "—"}
                       </td>
                     </tr>
