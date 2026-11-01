@@ -52,7 +52,9 @@ export function FleetShowcase({ vehicles }: { vehicles: FleetVehicle[] }) {
           </p>
         </Reveal>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={`mt-10 grid gap-5 sm:grid-cols-2 ${vehicles.length >= 3 ? "lg:grid-cols-3" : "mx-auto max-w-4xl"}`}
+        >
           {vehicles.map((v, i) => {
             const name = `${v.make} ${v.model}`;
             const seats = seatsFor(v.model);
