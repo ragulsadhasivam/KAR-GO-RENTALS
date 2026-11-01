@@ -35,6 +35,8 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
   const [vehicleId, setVehicleId] = useState(vehicles[0]?.id ?? "");
   const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("10:00");
+  const [returnDate, setReturnDate] = useState("");
+  const [returnTime, setReturnTime] = useState("10:00");
   const [pickupLocation, setPickupLocation] = useState("");
   const [currentKm, setCurrentKm] = useState<number | "">("");
 
@@ -64,6 +66,11 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
 
   const pickupAt = useMemo(() => (pickupDate ? new Date(`${pickupDate}T${pickupTime}`) : null), [pickupDate, pickupTime]);
 
+  const expectedReturnAt = useMemo(
+    () => (returnDate ? new Date(`${returnDate}T${returnTime}`) : null),
+    [returnDate, returnTime]
+  );
+
   function resetAndClose() {
     onOpenChange(false);
   }
@@ -81,10 +88,14 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
       if (!newCustomer.address.trim()) e.address = "Required";
     }
     if (!vehicleId) e.vehicleId = "Select a vehicle";
-    else if (selectedVehicle && selectedVehicle.status !== "AVAILABLE") {
-      e.vehicleId = "This vehicle is not currently available";
+    else if (selectedVehicle && selectedVehicle.status === "SERVICE") {
+      e.vehicleId = "This vehicle is in service";
     }
     if (!pickupDate) e.pickupDate = "Required";
+    if (!returnDate) e.returnDate = "Required";
+    else if (pickupAt && expectedReturnAt && expectedReturnAt <= pickupAt) {
+      e.returnDate = "Return must be after pickup";
+    }
     if (!pickupLocation.trim()) e.pickupLocation = "Required";
     if (currentKm === "" || Number(currentKm) < 0) e.currentKm = "Enter a valid KM reading";
     if (amountPaid < 0) e.amountPaid = "Enter a valid amount";
@@ -101,6 +112,7 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
         newCustomer: mode === "new" ? newCustomer : undefined,
         vehicleId,
         pickupAt: pickupAt?.toISOString(),
+        expectedReturnAt: expectedReturnAt?.toISOString(),
         pickupLocation,
         currentKm: currentKm === "" ? undefined : Number(currentKm),
         dailyRate,
@@ -248,11 +260,11 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
                 key={v.id}
                 type="button"
                 onClick={() => setVehicleId(v.id)}
-                disabled={v.status !== "AVAILABLE"}
+                disabled={v.status === "SERVICE"}
                 className={cn(
                   "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors",
                   vehicleId === v.id ? "border-gold-500/50 bg-gold-500/5" : "border-border hover:border-border-strong",
-                  v.status !== "AVAILABLE" && "opacity-40 cursor-not-allowed"
+                  v.status === "SERVICE" && "opacity-40 cursor-not-allowed"
                 )}
               >
                 <div className="flex size-10 items-center justify-center rounded-lg bg-surface-3 overflow-hidden shrink-0">
@@ -264,7 +276,7 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium text-ink-1 truncate">{vehicleName(v)}</p>
                   <p className="text-[11.5px] text-ink-4 font-mono">{v.registrationNumber}</p>
-                  {v.status !== "AVAILABLE" && <p className="text-[11px] text-warning-400 mt-0.5">{v.status}</p>}
+                  {v.status === "SERVICE" && <p className="text-[11px] text-warning-400 mt-0.5">{v.status}</p>}
                 </div>
               </button>
             ))}
@@ -289,6 +301,17 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
           <div className="grid grid-cols-2 gap-4">
             <Input label="Pickup Date" type="date" required value={pickupDate} error={errors.pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
             <Input label="Pickup Time" type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
+            <Input
+              label="Expected Return Date"
+              type="date"
+              required
+              min={pickupDate || undefined}
+              value={returnDate}
+              error={errors.returnDate}
+              hint="Blocks these dates for this car only"
+              onChange={(e) => setReturnDate(e.target.value)}
+            />
+            <Input label="Expected Return Time" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
             <Input
               label="Pickup Location"
               required

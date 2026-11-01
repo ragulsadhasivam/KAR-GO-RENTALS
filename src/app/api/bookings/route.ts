@@ -1,7 +1,7 @@
 import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { findBlockingBooking } from "@/lib/services/booking";
+import { findBlockingBooking, describeBookedWindow } from "@/lib/services/booking";
 import { syncVehicleStatus } from "@/lib/services/vehicleStatus";
 import { nextBookingCode } from "@/lib/services/counter";
 import { customerSchema } from "@/lib/validations";
@@ -43,6 +43,14 @@ export async function POST(req: NextRequest) {
   if (!body.pickupAt || Number.isNaN(pickupAt.getTime())) {
     return NextResponse.json({ error: "Enter a valid pickup date and time." }, { status: 400 });
   }
+  const expectedReturnAt = new Date(body.expectedReturnAt);
+  if (!body.expectedReturnAt || Number.isNaN(expectedReturnAt.getTime())) {
+    return NextResponse.json({ error: "Enter a valid expected return date and time." }, { status: 400 });
+  }
+  if (expectedReturnAt.getTime() <= pickupAt.getTime()) {
+    return NextResponse.json({ error: "Return must be after the pickup date and time." }, { status: 400 });
+  }
+  const window = { from: pickupAt, to: expectedReturnAt };
   if (!body.vehicleId) {
     return NextResponse.json({ error: "Select a vehicle." }, { status: 400 });
   }
@@ -75,16 +83,14 @@ export async function POST(req: NextRequest) {
 
   const vehicle = await prisma.vehicle.findUnique({ where: { id: body.vehicleId } });
   if (!vehicle) return NextResponse.json({ error: "Vehicle not found." }, { status: 404 });
-  if (vehicle.status !== "AVAILABLE") {
-    return NextResponse.json({ error: "This vehicle is not currently available." }, { status: 400 });
+  if (vehicle.status === "SERVICE") {
+    return NextResponse.json({ error: "This vehicle is in service and can't be booked." }, { status: 400 });
   }
 
-  const blocking = await findBlockingBooking(body.vehicleId);
+  const blocking = await findBlockingBooking(body.vehicleId, window);
   if (blocking) {
     return NextResponse.json(
-      {
-        error: `Vehicle unavailable. It already has an open booking ${blocking.code} (${blocking.customer.fullName}).`,
-      },
+      { error: `These dates are already booked for this car (${describeBookedWindow(blocking)}). Choose different dates or another car.` },
       { status: 409 }
     );
   }
@@ -115,8 +121,8 @@ export async function POST(req: NextRequest) {
       // Lock the vehicle row, then re-check availability, so two requests
       // for the same car can't both succeed.
       await tx.vehicle.update({ where: { id: body.vehicleId }, data: { updatedAt: new Date() } });
-      const taken = await findBlockingBooking(body.vehicleId, undefined, tx);
-      if (taken) throw new Error(`VEHICLE_TAKEN:${taken.code}`);
+      const taken = await findBlockingBooking(body.vehicleId, window, undefined, tx);
+      if (taken) throw new Error("VEHICLE_TAKEN");
 
       const created = await tx.booking.create({
         data: {
@@ -124,6 +130,7 @@ export async function POST(req: NextRequest) {
           customerId,
           vehicleId: body.vehicleId,
           pickupAt,
+          expectedReturnAt,
           pickupLocation: body.pickupLocation,
           currentKm: body.currentKm != null && body.currentKm !== "" ? Number(body.currentKm) : null,
           dailyRate: Number(body.dailyRate),
@@ -161,9 +168,9 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: any) {
-    if (typeof err?.message === "string" && err.message.startsWith("VEHICLE_TAKEN:")) {
+    if (err?.message === "VEHICLE_TAKEN") {
       return NextResponse.json(
-        { error: `Vehicle unavailable. It already has an open booking ${err.message.split(":")[1]}.` },
+        { error: "These dates are already booked for this car. Choose different dates or another car." },
         { status: 409 }
       );
     }

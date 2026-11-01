@@ -149,6 +149,9 @@ model Booking {
   vehicle          Vehicle   @relation(fields: [vehicleId], references: [id])
 
   pickupAt         DateTime
+  // When the customer plans to return the car. Used only to check that two
+  // bookings for the same car don't overlap; billing uses the actual return.
+  expectedReturnAt DateTime?
   pickupLocation   String
   currentKm        Int?      // vehicle's odometer reading captured at booking creation
 
