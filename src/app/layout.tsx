@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { SITE_URL } from "@/lib/site";
 import { BootSplash } from "@/components/layout/BootSplash";
 import "./globals.css";
 
@@ -11,8 +12,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "KAR GO RENTALS",
-  description: "Fleet management for KAR GO RENTALS",
+  description: "Self-drive car rentals in Karur",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

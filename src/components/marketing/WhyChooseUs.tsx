@@ -1,44 +1,43 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { ShieldCheck, Wallet, HeadphonesIcon, Gauge, BadgeCheck, Clock3 } from "lucide-react";
+import { ShieldCheck, Wallet, Truck, Gauge, BadgeCheck, MessageCircle } from "lucide-react";
+import { Reveal } from "./Reveal";
 
 const FEATURES = [
-  { icon: ShieldCheck, title: "Fully insured", desc: "Every rental is backed by comprehensive insurance coverage." },
-  { icon: Wallet, title: "Transparent pricing", desc: "The price you see is the price you pay — no hidden charges." },
-  { icon: HeadphonesIcon, title: "24/7 support", desc: "Real humans on the phone, whenever you need help." },
+  { icon: ShieldCheck, title: "Insured vehicles", desc: "Every rental car is covered by insurance." },
+  { icon: Wallet, title: "Transparent pricing", desc: "Daily, extra-hour and extra-km rates are published on this page." },
+  { icon: Truck, title: "Doorstep delivery", desc: "The car comes to you and is collected from you." },
   { icon: Gauge, title: "Well-maintained fleet", desc: "Routine servicing and inspections keep every car road-ready." },
-  { icon: BadgeCheck, title: "Verified vehicles", desc: "RC, insurance, and fitness certificates kept current — always." },
-  { icon: Clock3, title: "Flexible durations", desc: "Rent by the day, week, or month — plans that fit your trip." },
+  { icon: BadgeCheck, title: "Verified paperwork", desc: "RC, insurance and fitness certificates are kept current." },
+  { icon: MessageCircle, title: "Reach us your way", desc: "Call or WhatsApp. A real person answers." },
 ];
 
 export function WhyChooseUs() {
   return (
-    <section id="why-us" className="relative bg-white py-20 sm:py-28">
+    <section id="why-us" className="relative border-y border-white/10 bg-black py-20 sm:py-28">
       <div className="mx-auto max-w-[1600px] px-5 sm:px-10">
-        <div className="max-w-xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gold-600">The Guarantee</p>
-          <h2 className="mt-4 text-[32px] leading-[1.05] font-bold uppercase tracking-tight text-black sm:text-[44px]">
-            Nothing left to chance.
+        <Reveal className="max-w-2xl">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-gold-400">Why KAR GO</p>
+          <h2 className="mt-3 text-[32px] leading-[1.1] font-bold tracking-tight text-white sm:text-[44px]">
+            Built around getting you moving.
           </h2>
-        </div>
+          <p className="mt-4 text-[16px] leading-relaxed text-white/75">
+            No queues, no paperwork pile-up. Every KAR GO car is inspected, sanitised and insured,
+            then delivered to your doorstep.
+          </p>
+        </Reveal>
 
-        <div className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="border-t border-black/10 pt-5"
-            >
-              <f.icon className="size-5 text-black/70" strokeWidth={1.5} />
-              <h3 className="mt-4 text-[15px] font-semibold text-black">{f.title}</h3>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-black/55">{f.desc}</p>
-            </motion.div>
+            <li key={f.title}>
+              <Reveal delay={i * 0.05} className="h-full">
+                <div className="h-full rounded-2xl border border-border-subtle bg-surface p-6">
+                  <f.icon className="size-6 text-gold-400" strokeWidth={1.6} aria-hidden />
+                  <h3 className="mt-4 text-[17px] font-semibold text-ink-1">{f.title}</h3>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-ink-3">{f.desc}</p>
+                </div>
+              </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

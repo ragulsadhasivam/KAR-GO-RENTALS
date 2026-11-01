@@ -1,36 +1,42 @@
-"use client";
+import { MapPin, MessageCircle, Phone } from "lucide-react";
+import { BOOKING_PHONE_DISPLAY, BOOKING_TEL_HREF, WHATSAPP_GENERAL_HREF } from "./bookingPhone";
+import { Reveal } from "./Reveal";
 
-import { motion } from "framer-motion";
-import { Phone } from "lucide-react";
-import { BOOKING_TEL_HREF } from "./bookingPhone";
-
-export function CTASection() {
+export function CTASection({ city, mapsHref }: { city: string; mapsHref: string }) {
   return (
-    <section id="contact" className="relative bg-black py-24 sm:py-32">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6 }}
-        className="mx-auto max-w-[1600px] px-5 sm:px-10 text-center"
-      >
-        <h2 className="text-[36px] leading-[1.02] font-bold uppercase tracking-tight text-white sm:text-[64px]">
-          Ready for the
-          <br />
-          <span className="text-gold-400">open road?</span>
+    <section id="contact" className="relative border-t border-white/10 bg-black py-20 sm:py-28">
+      <Reveal className="mx-auto max-w-[1600px] px-5 text-center sm:px-10">
+        <h2 className="text-[34px] leading-[1.1] font-bold tracking-tight text-white sm:text-[56px]">
+          Ready for the <span className="text-gold-400">open road?</span>
         </h2>
-        <p className="mt-5 max-w-lg mx-auto text-[15px] text-white/55">
-          Give us a call to book — we&apos;ll have a car ready at your doorstep.
+        <p className="mx-auto mt-4 max-w-lg text-[16px] text-white/75">
+          Call or message us and we&apos;ll have a car ready at your doorstep in {city}.
         </p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
             href={BOOKING_TEL_HREF}
-            className="inline-flex items-center gap-2 justify-center rounded-full bg-gold-500 px-6 py-3 text-[13.5px] font-semibold text-black transition-colors hover:bg-gold-400"
+            className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-7 py-3.5 text-[16px] font-semibold text-black transition-colors hover:bg-gold-400"
           >
-            <Phone className="size-4" /> Make a call and book
+            <Phone className="size-4" /> {BOOKING_PHONE_DISPLAY}
+          </a>
+          <a
+            href={WHATSAPP_GENERAL_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-white/35 px-7 py-3.5 text-[16px] font-medium text-white transition-colors hover:border-white/70"
+          >
+            <MessageCircle className="size-4" /> WhatsApp
           </a>
         </div>
-      </motion.div>
+        <a
+          href={mapsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-1.5 text-[14px] text-white/75 underline underline-offset-4 hover:text-white"
+        >
+          <MapPin className="size-4" /> Find us on Google Maps
+        </a>
+      </Reveal>
     </section>
   );
 }
