@@ -1,8 +1,12 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { customerSchema } from "@/lib/validations";
 
 export async function GET(req: NextRequest) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const q = req.nextUrl.searchParams.get("q")?.trim();
   const customers = await prisma.customer.findMany({
     where: q
@@ -15,7 +19,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const body = await req.json().catch(() => ({}));
   const parsed = customerSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid data" }, { status: 400 });

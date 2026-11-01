@@ -1,3 +1,4 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { findBlockingBooking } from "@/lib/services/booking";
@@ -7,6 +8,9 @@ import { customerSchema } from "@/lib/validations";
 import { sendBookingConfirmationWhatsApp } from "@/lib/services/bookingWhatsapp";
 
 export async function GET(req: NextRequest) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const status = req.nextUrl.searchParams.get("status");
   const q = req.nextUrl.searchParams.get("q")?.trim();
 
@@ -30,7 +34,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const body = await req.json().catch(() => ({}));
 
   const pickupAt = new Date(body.pickupAt);
   if (!body.pickupAt || Number.isNaN(pickupAt.getTime())) {
@@ -44,6 +51,26 @@ export async function POST(req: NextRequest) {
   }
   if (body.currentKm != null && body.currentKm !== "" && !(Number(body.currentKm) >= 0)) {
     return NextResponse.json({ error: "Enter a valid current KM reading." }, { status: 400 });
+  }
+
+  for (const [field, label] of [
+    ["dailyRate", "daily rate"],
+    ["extraHourRate", "extra hour rate"],
+    ["extraKmRate", "extra km rate"],
+  ] as const) {
+    const n = Number(body[field]);
+    if (body[field] == null || body[field] === "" || !Number.isFinite(n) || n < 0) {
+      return NextResponse.json({ error: `Enter a valid ${label}.` }, { status: 400 });
+    }
+  }
+  for (const [field, label] of [
+    ["discount", "discount"],
+    ["amountPaid", "amount paid"],
+  ] as const) {
+    const n = Number(body[field] || 0);
+    if (!Number.isFinite(n) || n < 0) {
+      return NextResponse.json({ error: `Enter a valid ${label}.` }, { status: 400 });
+    }
   }
 
   const vehicle = await prisma.vehicle.findUnique({ where: { id: body.vehicleId } });
@@ -85,6 +112,12 @@ export async function POST(req: NextRequest) {
     const code = await nextBookingCode();
 
     const booking = await prisma.$transaction(async (tx) => {
+      // Lock the vehicle row, then re-check availability, so two requests
+      // for the same car can't both succeed.
+      await tx.vehicle.update({ where: { id: body.vehicleId }, data: { updatedAt: new Date() } });
+      const taken = await findBlockingBooking(body.vehicleId, undefined, tx);
+      if (taken) throw new Error(`VEHICLE_TAKEN:${taken.code}`);
+
       const created = await tx.booking.create({
         data: {
           code,
@@ -128,6 +161,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: any) {
+    if (typeof err?.message === "string" && err.message.startsWith("VEHICLE_TAKEN:")) {
+      return NextResponse.json(
+        { error: `Vehicle unavailable. It already has an open booking ${err.message.split(":")[1]}.` },
+        { status: 409 }
+      );
+    }
     console.error(err);
     return NextResponse.json({ error: "Could not create booking. Please try again." }, { status: 500 });
   }

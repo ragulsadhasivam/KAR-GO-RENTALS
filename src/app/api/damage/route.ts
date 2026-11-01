@@ -1,9 +1,13 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { damageIncidentSchema } from "@/lib/validations";
 import { nextIncidentCode } from "@/lib/services/counter";
 
 export async function GET() {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const incidents = await prisma.damageIncident.findMany({
     include: { vehicle: true, booking: true, customer: true },
     orderBy: { date: "desc" },
@@ -12,7 +16,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const body = await req.json().catch(() => ({}));
   const parsed = damageIncidentSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid data" }, { status: 400 });

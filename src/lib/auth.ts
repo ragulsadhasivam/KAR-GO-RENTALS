@@ -2,11 +2,9 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { getSessionSecret } from "@/lib/session-secret";
 
 const SESSION_COOKIE = "kargo_session";
-const secret = new TextEncoder().encode(
-  process.env.SESSION_SECRET ?? "kargo-rentals-fallback-secret"
-);
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
@@ -21,7 +19,7 @@ export async function createSession(adminId: string) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30d")
-    .sign(secret);
+    .sign(getSessionSecret());
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
@@ -43,7 +41,7 @@ export async function getSessionAdminId(): Promise<string | null> {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, getSessionSecret());
     return (payload.adminId as string) ?? null;
   } catch {
     return null;

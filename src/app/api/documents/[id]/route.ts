@@ -1,9 +1,13 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   const data: any = {};
   for (const key of ["documentName", "documentNumber", "issuer", "fileUrl", "fileName", "fileType"]) {
     if (body[key] !== undefined) data[key] = body[key];
@@ -17,6 +21,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
   await prisma.vehicleDocument.delete({ where: { id } });
   return NextResponse.json({ ok: true });

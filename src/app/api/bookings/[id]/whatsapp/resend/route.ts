@@ -1,3 +1,4 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBookingConfirmationWhatsApp } from "@/lib/services/bookingWhatsapp";
@@ -5,6 +6,9 @@ import { sendBookingConfirmationWhatsApp } from "@/lib/services/bookingWhatsapp"
 const RESEND_COOLDOWN_MS = 10_000;
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
 
   const booking = await prisma.booking.findUnique({ where: { id }, select: { id: true, whatsappLastAttemptAt: true } });

@@ -1,7 +1,11 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const vehicleId = req.nextUrl.searchParams.get("vehicleId");
   const type = req.nextUrl.searchParams.get("type");
 
@@ -17,7 +21,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const body = await req.json().catch(() => ({}));
   if (!body.vehicleId || !body.type) {
     return NextResponse.json({ error: "Vehicle and document type are required." }, { status: 400 });
   }

@@ -8,7 +8,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Setup has already been completed." }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
   const { business, admins, vehicles, documents, pricing } = body;
 
   if (!business?.name || !business?.phone || !business?.email || !business?.address || !business?.city) {
@@ -28,6 +31,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const firstAdminId = await prisma.$transaction(async (tx) => {
+      // Re-check inside the transaction so two simultaneous requests can't both pass.
+      const current = await tx.business.findUnique({ where: { id: "business" } });
+      if (current?.setupCompletedAt) throw new Error("SETUP_ALREADY_DONE");
+
       await tx.business.upsert({
         where: { id: "business" },
         create: {
@@ -166,6 +173,9 @@ export async function POST(req: NextRequest) {
     await createSession(firstAdminId);
     return NextResponse.json({ ok: true });
   } catch (err: any) {
+    if (err?.message === "SETUP_ALREADY_DONE") {
+      return NextResponse.json({ error: "Setup has already been completed." }, { status: 400 });
+    }
     if (err?.code === "P2002") {
       return NextResponse.json(
         { error: "A vehicle registration number or admin email is already in use." },

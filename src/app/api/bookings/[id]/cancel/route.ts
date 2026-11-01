@@ -10,6 +10,9 @@ import { syncVehicleStatus } from "@/lib/services/vehicleStatus";
  * payment records are left untouched.
  */
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
 
   const booking = await prisma.booking.findUnique({ where: { id } });

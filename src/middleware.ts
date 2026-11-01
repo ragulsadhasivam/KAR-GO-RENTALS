@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { getSessionSecret } from "@/lib/session-secret";
 
 const SESSION_COOKIE = "kargo_session";
-const secret = new TextEncoder().encode(
-  process.env.SESSION_SECRET ?? "kargo-rentals-fallback-secret"
-);
 
 const PUBLIC_PATHS = ["/login", "/setup"];
 
@@ -30,7 +28,7 @@ export async function middleware(req: NextRequest) {
   let authenticated = false;
   if (token) {
     try {
-      await jwtVerify(token, secret);
+      await jwtVerify(token, getSessionSecret());
       authenticated = true;
     } catch {
       authenticated = false;

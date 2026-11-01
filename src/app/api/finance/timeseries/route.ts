@@ -1,8 +1,12 @@
+import { getCurrentAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { eachDayOfInterval, startOfDay, endOfDay, subDays, format } from "date-fns";
 
 export async function GET(req: NextRequest) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const range = req.nextUrl.searchParams.get("range") ?? "30d";
   const vehicleId = req.nextUrl.searchParams.get("vehicleId") ?? undefined;
   const customStart = req.nextUrl.searchParams.get("start");

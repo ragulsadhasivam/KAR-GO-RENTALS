@@ -3,10 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin, hashPassword, verifyPassword } from "@/lib/auth";
 
 export async function PATCH(req: NextRequest) {
+  if (!(await getCurrentAdmin())) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const admin = await getCurrentAdmin();
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   const data: any = {};
   for (const key of ["name", "mobile", "photoUrl"] as const) {
     if (body[key] !== undefined) data[key] = body[key];

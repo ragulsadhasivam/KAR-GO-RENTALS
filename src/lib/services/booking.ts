@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 /**
  * A booking no longer carries a known/expected return date up front (the
@@ -6,8 +7,12 @@ import { prisma } from "@/lib/prisma";
  * so date-range overlap checking isn't possible. Availability is simply:
  * does this vehicle already have a BOOKED or ACTIVE booking right now.
  */
-export async function findBlockingBooking(vehicleId: string, excludeBookingId?: string) {
-  return prisma.booking.findFirst({
+export async function findBlockingBooking(
+  vehicleId: string,
+  excludeBookingId?: string,
+  db: Prisma.TransactionClient | typeof prisma = prisma
+) {
+  return db.booking.findFirst({
     where: {
       vehicleId,
       status: { in: ["BOOKED", "ACTIVE"] },
