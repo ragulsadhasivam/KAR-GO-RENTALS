@@ -56,7 +56,7 @@ export function StatusPill({
       )}
     >
       <Icon className={cn("shrink-0", size === "sm" ? "size-3" : "size-3.5")} />
-      <span className="min-w-0 truncate" title={config.label}>
+      <span className="whitespace-nowrap">
         {config.label}
       </span>
     </span>
@@ -80,7 +80,7 @@ export function Badge({
         className
       )}
     >
-      <span className="min-w-0 truncate">{children}</span>
+      <span className="whitespace-nowrap">{children}</span>
     </span>
   );
 }

@@ -22,8 +22,8 @@ export function KPICard({ label, value, icon: Icon, tone = "neutral", trend, cla
   return (
     <Card padding="sm" className={cn("flex items-start justify-between gap-2 sm:gap-3 sm:p-5", className)}>
       <div className="flex flex-col gap-1.5 sm:gap-2 min-w-0">
-        <span className="text-meta truncate">{label}</span>
-        <span className="text-figure text-[19px] sm:text-[24px] lg:text-[28px] font-semibold text-ink-1 truncate">
+        <span className="text-meta leading-snug">{label}</span>
+        <span className="text-figure text-[20px] sm:text-[24px] xl:text-[26px] font-semibold text-ink-1 break-words">
           {value}
         </span>
         {trend && (

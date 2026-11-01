@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
  * each screen re-deriving its own — the widths still vary per table
  * (they depend on that table's content), but the cell treatment doesn't.
  */
-export const denseCell = "px-2.5 py-3 first:pl-4 last:pr-4 truncate tracking-normal";
-export const denseCellText = "text-[12.5px]";
+export const denseCell = "px-3 py-3.5 first:pl-4 last:pr-4 truncate tracking-normal";
+export const denseCellText = "text-[13.5px]";
 
 export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
   return (

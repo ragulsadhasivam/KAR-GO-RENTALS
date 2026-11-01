@@ -8,6 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
@@ -49,7 +50,7 @@ export function FinanceChart({ vehicleId, defaultRange = "30d" }: { vehicleId?: 
         ))}
       </div>
 
-      <div className="h-[260px] w-full">
+      <div className="h-[260px] w-full" role="img" aria-label="Chart of revenue, expenses and profit over time">
         {loading ? (
           <div className="h-full w-full animate-pulse rounded-xl bg-surface-2" />
         ) : (
@@ -69,7 +70,7 @@ export function FinanceChart({ vehicleId, defaultRange = "30d" }: { vehicleId?: 
               <XAxis
                 dataKey="date"
                 stroke="var(--color-ink-4)"
-                fontSize={11}
+                fontSize={12}
                 tickLine={false}
                 axisLine={false}
                 minTickGap={24}
@@ -79,8 +80,11 @@ export function FinanceChart({ vehicleId, defaultRange = "30d" }: { vehicleId?: 
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => `₹${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+                allowDecimals={false}
+                tickCount={5}
+                tickFormatter={(v) => `₹${v >= 1000 ? `${+(v / 1000).toFixed(1)}k` : v}`}
               />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
               <Tooltip
                 contentStyle={{
                   background: "rgba(24,24,30,0.95)",
@@ -91,9 +95,9 @@ export function FinanceChart({ vehicleId, defaultRange = "30d" }: { vehicleId?: 
                 labelStyle={{ color: "var(--color-ink-2)" }}
                 formatter={(value, name) => [formatCurrency(Number(value ?? 0)), String(name)]}
               />
-              <Area type="monotone" dataKey="revenue" name="Revenue" stroke="var(--color-gold-400)" strokeWidth={2} fill="url(#revenueGrad)" />
-              <Area type="monotone" dataKey="expenses" name="Expenses" stroke="var(--color-blue-400)" strokeWidth={2} fill="url(#expenseGrad)" />
-              <Area type="monotone" dataKey="profit" name="Profit" stroke="var(--color-success-500)" strokeWidth={2} fill="transparent" />
+              <Area type="linear" dataKey="revenue" name="Revenue" stroke="var(--color-gold-400)" strokeWidth={2} fill="url(#revenueGrad)" />
+              <Area type="linear" dataKey="expenses" name="Expenses" stroke="var(--color-blue-400)" strokeWidth={2} fill="url(#expenseGrad)" />
+              <Area type="linear" dataKey="profit" name="Profit" stroke="var(--color-success-500)" strokeWidth={2} fill="transparent" />
             </AreaChart>
           </ResponsiveContainer>
         )}

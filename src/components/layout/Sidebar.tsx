@@ -46,7 +46,7 @@ export function Sidebar({ businessName }: { businessName: string }) {
     <aside
       className={cn(
         "hidden lg:flex flex-col shrink-0 border-r border-border-subtle bg-surface/60 backdrop-blur-xl transition-[width] duration-150 ease-out",
-        collapsed ? "w-[76px]" : "w-[320px]"
+        collapsed ? "w-[76px]" : "w-[248px]"
       )}
     >
       <div className={cn("flex items-center h-16 shrink-0 px-4 gap-2", collapsed && "justify-center px-3")}>

@@ -12,7 +12,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { NewBookingDrawer } from "@/components/bookings/NewBookingDrawer";
 import { BookingCalendar } from "@/components/bookings/BookingCalendar";
 import { formatCurrency, formatDateTime, cn, vehicleName, getPaymentStatus } from "@/lib/utils";
-import { calculateRentalDuration, formatDuration } from "@/lib/rentalBilling";
 
 const TABS = ["ALL", "BOOKED", "ACTIVE", "RETURNED", "CANCELLED"];
 
@@ -59,7 +58,7 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs value={status} onValueChange={setStatus}>
           <TabsList>
             {TABS.map((t) => (
@@ -70,7 +69,7 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
           </TabsList>
         </Tabs>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {view === "list" && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-ink-4" />
@@ -78,20 +77,20 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search bookings…"
-                className="h-9 w-56 rounded-xl bg-surface-2 border border-border pl-8 pr-3 text-[13px] text-ink-1 placeholder:text-ink-4 focus-ring outline-none focus:border-gold-500/50"
+                className="h-10 w-52 rounded-xl bg-surface-2 border border-border pl-8 pr-3 text-[14px] text-ink-1 placeholder:text-ink-4 focus-ring outline-none focus:border-gold-500/50"
               />
             </div>
           )}
           <div className="flex gap-1 rounded-xl bg-surface-2 border border-border-subtle p-1">
             <button
               onClick={() => setView("list")}
-              className={cn("h-7 rounded-lg px-3 text-[12px] font-medium flex items-center gap-1.5", view === "list" ? "bg-surface-3 text-ink-1" : "text-ink-4")}
+              className={cn("h-8 rounded-lg px-3 text-[13px] font-medium flex items-center gap-1.5", view === "list" ? "bg-surface-3 text-ink-1" : "text-ink-4")}
             >
               <List className="size-3.5" /> List
             </button>
             <button
               onClick={() => setView("calendar")}
-              className={cn("h-7 rounded-lg px-3 text-[12px] font-medium flex items-center gap-1.5", view === "calendar" ? "bg-surface-3 text-ink-1" : "text-ink-4")}
+              className={cn("h-8 rounded-lg px-3 text-[13px] font-medium flex items-center gap-1.5", view === "calendar" ? "bg-surface-3 text-ink-1" : "text-ink-4")}
             >
               <CalendarRange className="size-3.5" /> Calendar
             </button>
@@ -113,31 +112,14 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
           }
         />
       ) : (
-        <Table className="table-fixed">
-          <colgroup>
-            <col style={{ width: "10.04%" }} />
-            <col style={{ width: "11.59%" }} />
-            <col style={{ width: "12.33%" }} />
-            <col style={{ width: "8.69%" }} />
-            <col style={{ width: "7.97%" }} />
-            <col style={{ width: "3.62%" }} />
-            <col style={{ width: "6.81%" }} />
-            <col style={{ width: "6.81%" }} />
-            <col style={{ width: "6.92%" }} />
-            <col style={{ width: "7.59%" }} />
-            <col style={{ width: "11.16%" }} />
-            <col style={{ width: "6.47%" }} />
-          </colgroup>
+        <Table>
           <THead>
             <tr>
               <TH className={cellPad}>Booking ID</TH>
               <TH className={cellPad}>Customer</TH>
               <TH className={cellPad}>Vehicle</TH>
               <TH className={cellPad}>Pickup</TH>
-              <TH className={cellPad}>Return</TH>
-              <TH className={cellPad}>Duration</TH>
               <TH className={cellPad}>Amount</TH>
-              <TH className={cellPad}>Paid</TH>
               <TH className={cellPad}>Balance</TH>
               <TH className={cellPad}>Payment</TH>
               <TH className={cellPad}>Status</TH>
@@ -150,40 +132,32 @@ export function BookingsPageClient({ bookings, vehicles }: { bookings: any[]; ve
               const isReturned = b.status === "RETURNED" && b.vehicleReturn;
               const isCancelled = b.status === "CANCELLED";
               const balance = b.totalAmount - paid;
-              const duration = isReturned ? calculateRentalDuration(new Date(b.pickupAt), new Date(b.vehicleReturn.returnAt)) : null;
               const pStatus = getPaymentStatus(b.status, b.totalAmount, paid);
               return (
                 <TR key={b.id} className={isCancelled ? "opacity-60" : undefined}>
-                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1 truncate")}>{b.code}</TD>
-                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1 truncate")} title={b.customer.fullName}>
+                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1")}>{b.code}</TD>
+                  <TD className={cn(cellPad, cellText, "font-medium text-ink-1 max-w-[180px] truncate")} title={b.customer.fullName}>
                     {b.customer.fullName}
                   </TD>
-                  <TD className={cn(cellPad, cellText, "truncate")} title={vehicleName(b.vehicle)}>
+                  <TD className={cn(cellPad, cellText, "max-w-[200px] truncate")} title={vehicleName(b.vehicle)}>
                     {vehicleName(b.vehicle)}
                   </TD>
-                  <TD className={cn(cellPad, cellText, "truncate")}>{formatDateTime(b.pickupAt)}</TD>
-                  <TD className={cn(cellPad, cellText, "text-ink-3 truncate")}>
-                    {isReturned ? formatDateTime(b.vehicleReturn.returnAt) : "—"}
-                  </TD>
-                  <TD className={cn(cellPad, cellText, "text-ink-3 truncate")}>
-                    {duration ? formatDuration(duration) : isCancelled ? "—" : "Pending"}
-                  </TD>
-                  <TD className={cn(cellPad, cellText, "truncate")}>
+                  <TD className={cn(cellPad, cellText)}>{formatDateTime(b.pickupAt)}</TD>
+                  <TD className={cn(cellPad, cellText)}>
                     {isReturned ? formatCurrency(b.totalAmount) : isCancelled ? "—" : "Pending"}
                   </TD>
-                  <TD className={cn(cellPad, cellText, "text-ink-4 truncate")}>{formatCurrency(paid)}</TD>
-                  <TD className={cn(cellPad, cellText, "truncate", isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "text-ink-3")}>
+                  <TD className={cn(cellPad, cellText, isReturned && balance > 0.5 ? "text-warning-400 font-medium" : "text-ink-3")}>
                     {isReturned ? formatCurrency(Math.max(0, balance)) : "—"}
                   </TD>
                   <TD className={cellPad}>
-                    <Badge tone={pStatus.tone} className="w-full max-w-full justify-center px-1.5">
-                      <span className="min-w-0 truncate" title={pStatus.label}>
+                    <Badge tone={pStatus.tone} className="justify-center px-2">
+                      <span className="whitespace-nowrap">
                         {pStatus.label}
                       </span>
                     </Badge>
                   </TD>
                   <TD className={cellPad}>
-                    <StatusPill status={b.status} size="sm" className="w-full max-w-full justify-center gap-1 px-1.5 whitespace-nowrap" />
+                    <StatusPill status={b.status} size="sm" className="justify-center gap-1 px-2" />
                   </TD>
                   <TD className={cellPad}>
                     <Link href={`/bookings/${b.id}`} className="flex items-center gap-1 text-gold-400 hover:text-gold-300 font-medium text-[12.5px] whitespace-nowrap">
