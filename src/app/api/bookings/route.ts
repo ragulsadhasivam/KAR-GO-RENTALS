@@ -158,10 +158,14 @@ export async function POST(req: NextRequest) {
     // The booking is already saved at this point — a WhatsApp failure must
     // never turn into a failed booking creation, so this is deliberately
     // outside the transaction and wrapped so it can never throw.
-    const whatsapp = await sendBookingConfirmationWhatsApp(booking.id).catch((err) => {
-      console.error("WhatsApp confirmation error:", err instanceof Error ? err.message : err);
-      return { status: "failed" as const, error: "Unexpected error while sending the WhatsApp confirmation." };
-    });
+    // Backfilled bookings (already-finished rentals entered after the fact)
+    // pass skipWhatsapp so no confirmation goes out for them.
+    const whatsapp: { status: string; error?: string } = body.skipWhatsapp === true
+      ? { status: "not_sent" }
+      : await sendBookingConfirmationWhatsApp(booking.id).catch((err) => {
+          console.error("WhatsApp confirmation error:", err instanceof Error ? err.message : err);
+          return { status: "failed" as const, error: "Unexpected error while sending the WhatsApp confirmation." };
+        });
 
     return NextResponse.json(
       { booking: { ...booking, whatsappStatus: whatsapp.status, whatsappError: whatsapp.error ?? null }, whatsapp },
