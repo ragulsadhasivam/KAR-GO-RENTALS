@@ -19,7 +19,7 @@ export type FleetVehicle = {
 };
 
 // Seat counts aren't stored per vehicle; known models only.
-const SEATS: Record<string, number> = { baleno: 5, ertiga: 7 };
+const SEATS: Record<string, number> = { baleno: 5, ertiga: 7, "innova crysta": 7, victoris: 5, virtus: 5, venue: 5 };
 
 function seatsFor(model: string) {
   return SEATS[model.trim().toLowerCase()] ?? null;

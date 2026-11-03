@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { LandingPage } from "@/components/marketing/LandingPage";
 import { BOOKING_PHONE } from "@/components/marketing/bookingPhone";
 import { FAQ_ITEMS } from "@/components/marketing/faq";
+import { WEBSITE_ONLY_FLEET } from "@/components/marketing/websiteOnlyFleet";
 
 export const metadata: Metadata = {
   title: "Self-Drive Car Rental in Karur | KAR GO RENTALS",
@@ -98,7 +99,7 @@ export default async function RootPage() {
           dailyRate: v.pricing?.dailyRate ?? null,
           extraHourRate: v.pricing?.extraHourRate ?? null,
           extraKmRate: v.pricing?.extraKmRate ?? null,
-        }))}
+        })).concat(WEBSITE_ONLY_FLEET)}
       />
     </>
   );
