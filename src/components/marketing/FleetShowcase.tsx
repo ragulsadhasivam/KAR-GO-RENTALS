@@ -14,7 +14,6 @@ export type FleetVehicle = {
   fuelType: string;
   imageUrl: string | null;
   dailyRate: number | null;
-  extraHourRate: number | null;
   extraKmRate: number | null;
 };
 
