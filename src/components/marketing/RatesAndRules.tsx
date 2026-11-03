@@ -4,7 +4,7 @@ import type { FleetVehicle } from "./FleetShowcase";
 
 const DEFAULT_RULES = [
   "Rates are per day. Returning late is billed per extra hour at the rate shown for that car.",
-  "Kilometres beyond the agreed limit are billed per extra km at the rate shown.",
+  "Kilometres beyond the agreed limit or billed per extra km at the rate shown.",
   "Keep a valid driving licence and a government ID ready at handover.",
   "Deposit, km limit, fuel policy and cancellation are confirmed with you before you pay. Just ask.",
 ];
