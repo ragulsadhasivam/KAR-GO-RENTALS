@@ -63,7 +63,6 @@ export async function POST(req: NextRequest) {
 
   for (const [field, label] of [
     ["dailyRate", "daily rate"],
-    ["extraHourRate", "extra hour rate"],
     ["extraKmRate", "extra km rate"],
   ] as const) {
     const n = Number(body[field]);
@@ -134,7 +133,7 @@ export async function POST(req: NextRequest) {
           pickupLocation: body.pickupLocation,
           currentKm: body.currentKm != null && body.currentKm !== "" ? Number(body.currentKm) : null,
           dailyRate: Number(body.dailyRate),
-          extraHourRate: Number(body.extraHourRate),
+          extraHourRate: 0,
           extraKmRate: Number(body.extraKmRate),
           discount: Number(body.discount || 0),
           status: "BOOKED",

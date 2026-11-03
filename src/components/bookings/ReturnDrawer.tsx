@@ -191,15 +191,6 @@ export function ReturnDrawer({
             <div className="space-y-2">
               <BillRow label={`Rental Duration (${formatDuration(bill.duration)})`} value="" muted />
               <BillRow label={`Base Rental (${bill.duration.days} day${bill.duration.days === 1 ? "" : "s"} × ${formatCurrency(dailyRate)})`} value={formatCurrency(bill.baseRental)} />
-              <BillRow
-                label={`Extra Hours (${bill.duration.billableHours} hr × ${formatCurrency(extraHourRate)})`}
-                value={formatCurrency(bill.extraHourCharge)}
-              />
-              {bill.duration.minutes > 0 && (
-                <p className="text-[11px] text-ink-4 -mt-1">
-                  Partial hour ({bill.duration.minutes} min) is billed as a full extra hour.
-                </p>
-              )}
               <BillRow label={`Extra KM (${extraKm} × ${formatCurrency(extraKmRate)})`} value={formatCurrency(bill.extraKmCharge)} />
               <BillRow label="Damage Charge" value={formatCurrency(bill.damageCharge)} />
               <BillRow label="Other Penalty" value={formatCurrency(bill.otherPenalty)} />

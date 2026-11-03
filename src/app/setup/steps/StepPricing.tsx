@@ -34,7 +34,6 @@ export function StepPricing({
       const e: Record<string, string> = {};
       const p = data[v.key];
       if (!p?.dailyRate || Number(p.dailyRate) <= 0) e.dailyRate = "Required";
-      if (!p?.extraHourRate || Number(p.extraHourRate) < 0) e.extraHourRate = "Required";
       if (!p?.extraKmRate || Number(p.extraKmRate) < 0) e.extraKmRate = "Required";
       errs[v.key] = e;
     }
@@ -80,15 +79,6 @@ export function StepPricing({
                 value={data[v.key]?.dailyRate ?? ""}
                 error={errors[v.key]?.dailyRate}
                 onChange={(e) => setPricing(v.key, { dailyRate: e.target.value })}
-              />
-              <Input
-                label="Extra Hour Rate"
-                required
-                type="number"
-                placeholder="e.g. 150"
-                value={data[v.key]?.extraHourRate ?? ""}
-                error={errors[v.key]?.extraHourRate}
-                onChange={(e) => setPricing(v.key, { extraHourRate: e.target.value })}
               />
               <Input
                 label="Extra KM Rate"

@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         newDamageNotes: parsed.data.newDamageNotes || null,
         photos: JSON.stringify(parsed.data.photos ?? []),
         extraKm: parsed.data.extraKm,
-        extraHours: bill.duration.billableHours,
+        extraHours: 0,
         damageCharge: parsed.data.damageCharge,
         otherPenalty: parsed.data.otherPenalty,
         customerSignatureUrl: parsed.data.customerSignatureUrl || null,
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       data: {
         status: "RETURNED",
         rentalDays: bill.duration.days,
-        extraHours: bill.duration.billableHours,
+        extraHours: 0,
         extraKm: parsed.data.extraKm,
         totalAmount: bill.finalTotal,
       },

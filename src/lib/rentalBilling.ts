@@ -79,7 +79,8 @@ export interface RentalBillResult {
 export function calculateRentalBill(input: RentalBillInput): RentalBillResult {
   const duration = calculateRentalDuration(input.pickupAt, input.returnAt);
   const baseRental = duration.days * input.dailyRate;
-  const extraHourCharge = duration.billableHours * input.extraHourRate;
+  // Extra hours are not charged: only complete days, extra km, damage and penalties bill.
+  const extraHourCharge = 0;
   const extraKmCharge = (input.extraKm ?? 0) * input.extraKmRate;
   const damageCharge = input.damageCharge ?? 0;
   const otherPenalty = input.otherPenalty ?? 0;

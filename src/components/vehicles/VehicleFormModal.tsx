@@ -68,7 +68,7 @@ export function VehicleFormModal({ open, onOpenChange, vehicle }: VehicleFormMod
       currentKm: Number(form.currentKm),
       pricing: {
         dailyRate: Number(form.dailyRate),
-        extraHourRate: Number(form.extraHourRate || 0),
+        extraHourRate: 0,
         extraKmRate: Number(form.extraKmRate || 0),
       },
     };
@@ -161,7 +161,6 @@ export function VehicleFormModal({ open, onOpenChange, vehicle }: VehicleFormMod
               error={errors.dailyRate}
               onChange={(e) => set("dailyRate", e.target.value)}
             />
-            <Input label="Extra Hour Rate" type="number" value={form.extraHourRate} onChange={(e) => set("extraHourRate", e.target.value)} />
             <Input label="Extra KM Rate" type="number" value={form.extraKmRate} onChange={(e) => set("extraKmRate", e.target.value)} />
           </div>
         </div>

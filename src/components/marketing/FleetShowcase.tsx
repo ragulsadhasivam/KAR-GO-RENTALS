@@ -104,11 +104,9 @@ export function FleetShowcase({ vehicles }: { vehicles: FleetVehicle[] }) {
                         {formatCurrency(v.dailyRate)}
                         <span className="text-[14px] font-normal text-ink-3"> / day</span>
                       </p>
-                      {(v.extraHourRate != null || v.extraKmRate != null) && (
+                      {v.extraKmRate != null && (
                         <p className="mt-1 text-[13px] text-ink-3">
-                          {v.extraHourRate != null && <>Extra hour {formatCurrency(v.extraHourRate)}</>}
-                          {v.extraHourRate != null && v.extraKmRate != null && " · "}
-                          {v.extraKmRate != null && <>Extra km {formatCurrency(v.extraKmRate)}</>}
+                          Extra km {formatCurrency(v.extraKmRate)}
                         </p>
                       )}
                     </div>

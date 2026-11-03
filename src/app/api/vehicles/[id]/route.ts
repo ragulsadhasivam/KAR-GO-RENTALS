@@ -68,12 +68,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         create: {
           vehicleId: id,
           dailyRate: Number(pricing.dailyRate),
-          extraHourRate: Number(pricing.extraHourRate),
+          extraHourRate: 0,
           extraKmRate: Number(pricing.extraKmRate),
         },
         update: {
           dailyRate: Number(pricing.dailyRate),
-          extraHourRate: Number(pricing.extraHourRate),
           extraKmRate: Number(pricing.extraKmRate),
         },
       });

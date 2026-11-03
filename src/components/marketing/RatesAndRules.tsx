@@ -3,7 +3,7 @@ import { Reveal } from "./Reveal";
 import type { FleetVehicle } from "./FleetShowcase";
 
 const DEFAULT_RULES = [
-  "Rates are per day. Returning late is billed per extra hour at the rate shown for that car.",
+  "Rates are per day. Kilometres beyond the agreed limit are charged extra, as shown.",
   "Kilometres beyond the agreed limit or billed per extra km at the rate shown.",
   "Keep a valid driving licence and a government ID ready at handover.",
   "Deposit, km limit, fuel policy and cancellation are confirmed with you before you pay. Just ask.",
@@ -39,7 +39,6 @@ export function RatesAndRules({
                   <tr>
                     <th scope="col" className="px-3 py-3 font-medium sm:px-4">Car</th>
                     <th scope="col" className="px-3 py-3 font-medium sm:px-4">Per day</th>
-                    <th scope="col" className="px-3 py-3 font-medium sm:px-4">Extra hour</th>
                     <th scope="col" className="px-3 py-3 font-medium sm:px-4">Extra km</th>
                   </tr>
                 </thead>
@@ -50,9 +49,6 @@ export function RatesAndRules({
                         {v.make} {v.model}
                       </th>
                       <td className="px-3 py-4 font-semibold text-gold-300 sm:px-4">{formatCurrency(v.dailyRate!)}</td>
-                      <td className="px-3 py-4 text-ink-2 sm:px-4">
-                        {v.extraHourRate != null ? formatCurrency(v.extraHourRate) : "—"}
-                      </td>
                       <td className="px-3 py-4 text-ink-2 sm:px-4">
                         {v.extraKmRate != null ? formatCurrency(v.extraKmRate) : "—"}
                       </td>

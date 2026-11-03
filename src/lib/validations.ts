@@ -51,7 +51,7 @@ export type VehicleInput = z.infer<typeof vehicleSchema>;
 export const pricingSchema = z.object({
   vehicleId: requiredStr("Vehicle"),
   dailyRate: z.coerce.number().min(0, "Enter a valid daily rate"),
-  extraHourRate: z.coerce.number().min(0, "Enter a valid extra hour rate"),
+  extraHourRate: z.coerce.number().min(0).default(0),
   extraKmRate: z.coerce.number().min(0, "Enter a valid extra KM rate"),
 });
 export type PricingInput = z.infer<typeof pricingSchema>;
@@ -104,7 +104,7 @@ export const bookingSchema = z
     pickupLocation: requiredStr("Pickup location"),
     currentKm: z.coerce.number().int().min(0, "Enter a valid KM reading").optional(),
     dailyRate: z.coerce.number().min(0),
-    extraHourRate: z.coerce.number().min(0),
+    extraHourRate: z.coerce.number().min(0).default(0),
     extraKmRate: z.coerce.number().min(0),
     discount: z.coerce.number().min(0).default(0),
     amountPaid: z.coerce.number().min(0).default(0),

@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
             data: {
               vehicleId: vehicle.id,
               dailyRate: Number(p.dailyRate),
-              extraHourRate: Number(p.extraHourRate || 0),
+              extraHourRate: 0,
               extraKmRate: Number(p.extraKmRate || 0),
             },
           });

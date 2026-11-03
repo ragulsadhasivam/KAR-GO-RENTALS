@@ -193,7 +193,6 @@ export function VehicleDetailClient({ vehicle, finance, utilisation }: { vehicle
               </CardHeader>
               <div className="grid grid-cols-3 gap-4">
                 <InfoItem icon={IndianRupee} label="Daily Rate" value={formatCurrency(vehicle.pricing.dailyRate)} />
-                <InfoItem icon={IndianRupee} label="Extra Hour Rate" value={formatCurrency(vehicle.pricing.extraHourRate)} />
                 <InfoItem icon={IndianRupee} label="Extra KM Rate" value={formatCurrency(vehicle.pricing.extraKmRate)} />
               </div>
             </Card>

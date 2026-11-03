@@ -207,12 +207,6 @@ function RentalSection({ vehicles, business }: { vehicles: any[]; business: any 
                   onChange={(e) => setPrices((p) => ({ ...p, [v.id]: { ...p[v.id], dailyRate: e.target.value } }))}
                 />
                 <Input
-                  label="Extra Hour Rate"
-                  type="number"
-                  value={prices[v.id]?.extraHourRate ?? ""}
-                  onChange={(e) => setPrices((p) => ({ ...p, [v.id]: { ...p[v.id], extraHourRate: e.target.value } }))}
-                />
-                <Input
                   label="Extra KM Rate"
                   type="number"
                   value={prices[v.id]?.extraKmRate ?? ""}

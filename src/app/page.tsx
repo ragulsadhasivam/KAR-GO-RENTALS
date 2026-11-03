@@ -97,8 +97,8 @@ export default async function RootPage() {
           fuelType: v.fuelType,
           imageUrl: v.imageUrl,
           dailyRate: v.pricing?.dailyRate ?? null,
-          extraHourRate: v.pricing?.extraHourRate ?? null,
-          extraKmRate: v.pricing?.extraKmRate ?? null,
+          extraHourRate: null,
+          extraKmRate: v.pricing ? 10 : null,
         })).concat(WEBSITE_ONLY_FLEET)}
       />
     </>

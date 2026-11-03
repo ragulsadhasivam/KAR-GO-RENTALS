@@ -41,7 +41,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
   const [currentKm, setCurrentKm] = useState<number | "">("");
 
   const [dailyRate, setDailyRate] = useState(0);
-  const [extraHourRate, setExtraHourRate] = useState(0);
   const [extraKmRate, setExtraKmRate] = useState(0);
   const [discount, setDiscount] = useState(0);
 
@@ -56,8 +55,7 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
   useEffect(() => {
     if (selectedVehicle?.pricing) {
       setDailyRate(selectedVehicle.pricing.dailyRate);
-      setExtraHourRate(selectedVehicle.pricing.extraHourRate);
-      setExtraKmRate(selectedVehicle.pricing.extraKmRate);
+      setExtraKmRate(selectedVehicle.pricing.extraKmRate || 10);
     }
     if (selectedVehicle && typeof selectedVehicle.currentKm === "number") {
       setCurrentKm(selectedVehicle.currentKm);
@@ -116,7 +114,7 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
         pickupLocation,
         currentKm: currentKm === "" ? undefined : Number(currentKm),
         dailyRate,
-        extraHourRate,
+        extraHourRate: 0,
         extraKmRate,
         discount,
         amountPaid,
@@ -326,7 +324,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
         <Section title="Pricing">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <Input label="Daily Rate" type="number" value={dailyRate} onChange={(e) => setDailyRate(Number(e.target.value))} />
-            <Input label="Extra Hour Rate" type="number" value={extraHourRate} onChange={(e) => setExtraHourRate(Number(e.target.value))} />
             <Input label="Extra KM Rate" type="number" value={extraKmRate} onChange={(e) => setExtraKmRate(Number(e.target.value))} />
             <Input label="Discount" type="number" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
           </div>
