@@ -13,7 +13,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "What do I pay beyond the daily rate?",
-    a: "Only what is listed in the rates table: extra kilometres beyond the agreed limit are billed at the rate shown for each car. There is no charge for extra hours.",
+    a: "Only what is listed in the rates table: extra kilometres beyond the agreed limit are billed at the rate shown for each car.",
   },
   {
     q: "Are the cars insured?",

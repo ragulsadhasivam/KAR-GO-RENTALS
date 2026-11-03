@@ -19,7 +19,6 @@ export function ReturnDrawer({
   startingKm,
   pickupAt,
   dailyRate,
-  extraHourRate,
   extraKmRate,
   discount,
   amountPaid,
@@ -30,7 +29,6 @@ export function ReturnDrawer({
   startingKm: number;
   pickupAt: string | Date;
   dailyRate: number;
-  extraHourRate: number;
   extraKmRate: number;
   discount: number;
   amountPaid: number;
@@ -59,14 +57,13 @@ export function ReturnDrawer({
       pickupAt: pickup,
       returnAt: returnDate,
       dailyRate,
-      extraHourRate,
       extraKmRate,
       extraKm,
       damageCharge,
       otherPenalty,
       discount,
     });
-  }, [isReturnAfterPickup, returnDate, pickup, dailyRate, extraHourRate, extraKmRate, extraKm, damageCharge, otherPenalty, discount]);
+  }, [isReturnAfterPickup, returnDate, pickup, dailyRate, extraKmRate, extraKm, damageCharge, otherPenalty, discount]);
 
   const distanceTravelled = Math.max(0, endingKm - startingKm);
   const projectedBalance = bill ? Math.max(0, bill.finalTotal - amountPaid) : null;

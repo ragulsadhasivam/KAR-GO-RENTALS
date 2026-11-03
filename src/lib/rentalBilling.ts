@@ -50,7 +50,6 @@ export interface RentalBillInput {
   pickupAt: Date;
   returnAt: Date;
   dailyRate: number;
-  extraHourRate: number;
   extraKmRate: number;
   extraKm?: number;
   damageCharge?: number;
@@ -61,7 +60,6 @@ export interface RentalBillInput {
 export interface RentalBillResult {
   duration: RentalDuration;
   baseRental: number;
-  extraHourCharge: number;
   extraKmCharge: number;
   damageCharge: number;
   otherPenalty: number;
@@ -79,13 +77,11 @@ export interface RentalBillResult {
 export function calculateRentalBill(input: RentalBillInput): RentalBillResult {
   const duration = calculateRentalDuration(input.pickupAt, input.returnAt);
   const baseRental = duration.days * input.dailyRate;
-  // Extra hours are not charged: only complete days, extra km, damage and penalties bill.
-  const extraHourCharge = 0;
   const extraKmCharge = (input.extraKm ?? 0) * input.extraKmRate;
   const damageCharge = input.damageCharge ?? 0;
   const otherPenalty = input.otherPenalty ?? 0;
   const discount = input.discount ?? 0;
-  const rawTotal = baseRental + extraHourCharge + extraKmCharge + damageCharge + otherPenalty - discount;
+  const rawTotal = baseRental + extraKmCharge + damageCharge + otherPenalty - discount;
   const finalTotal = Math.max(0, Math.round(rawTotal * 100) / 100);
-  return { duration, baseRental, extraHourCharge, extraKmCharge, damageCharge, otherPenalty, discount, finalTotal };
+  return { duration, baseRental, extraKmCharge, damageCharge, otherPenalty, discount, finalTotal };
 }

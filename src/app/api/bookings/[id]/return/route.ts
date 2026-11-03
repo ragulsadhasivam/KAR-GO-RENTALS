@@ -39,7 +39,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     pickupAt: booking.pickupAt,
     returnAt: parsed.data.returnAt,
     dailyRate: booking.dailyRate,
-    extraHourRate: booking.extraHourRate,
     extraKmRate: booking.extraKmRate,
     extraKm: parsed.data.extraKm,
     damageCharge: parsed.data.damageCharge,

@@ -369,7 +369,6 @@ export function BookingDetailClient({ booking }: { booking: any }) {
         startingKm={booking.handover?.startingKm ?? booking.vehicle.currentKm}
         pickupAt={booking.pickupAt}
         dailyRate={booking.dailyRate}
-        extraHourRate={booking.extraHourRate}
         extraKmRate={booking.extraKmRate}
         discount={booking.discount}
         amountPaid={paid}
