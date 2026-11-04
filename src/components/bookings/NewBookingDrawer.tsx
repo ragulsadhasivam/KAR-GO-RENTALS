@@ -38,7 +38,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
   const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("10:00");
   const [pickupLocation, setPickupLocation] = useState("");
-  const [currentKm, setCurrentKm] = useState<number | "">("");
 
   const [dailyRate, setDailyRate] = useState(0);
   const [extraKmRate, setExtraKmRate] = useState(0);
@@ -56,9 +55,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
     if (selectedVehicle?.pricing) {
       setDailyRate(selectedVehicle.pricing.dailyRate);
       setExtraKmRate(selectedVehicle.pricing.extraKmRate || 10);
-    }
-    if (selectedVehicle && typeof selectedVehicle.currentKm === "number") {
-      setCurrentKm(selectedVehicle.currentKm);
     }
   }, [vehicleId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -95,7 +91,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
       e.returnDate = "Return must be after pickup";
     }
     if (!pickupLocation.trim()) e.pickupLocation = "Required";
-    if (currentKm === "" || Number(currentKm) < 0) e.currentKm = "Enter a valid KM reading";
     if (amountPaid < 0) e.amountPaid = "Enter a valid amount";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -112,7 +107,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
         pickupAt: pickupAt?.toISOString(),
         expectedReturnAt: expectedReturnAt?.toISOString(),
         pickupLocation,
-        currentKm: currentKm === "" ? undefined : Number(currentKm),
         dailyRate,
         extraHourRate: 0,
         extraKmRate,
@@ -280,19 +274,6 @@ export function NewBookingDrawer({ open, onOpenChange, vehicles }: NewBookingDra
             ))}
           </div>
           {errors.vehicleId && <p className="text-[12px] text-danger-400 mb-2">{errors.vehicleId}</p>}
-
-          <Input
-            label="Current KM"
-            type="number"
-            required
-            min={0}
-            placeholder="Enter current vehicle KM"
-            value={currentKm}
-            error={errors.currentKm}
-            hint="Vehicle's odometer reading at the time of this booking"
-            onChange={(e) => setCurrentKm(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
-            wrapClassName="mt-4"
-          />
         </Section>
 
         <Section title="Pickup">
